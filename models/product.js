@@ -12,7 +12,8 @@ module.exports = (sequelize, DataTypes) => {
 
       // Product memiliki banyak Reviews
       Product.hasMany(models.Review, {
-        foreignKey: 'product_id'
+        foreignKey: 'product_id',
+        as: 'Reviews'
       });
 
       // Product bisa ada di banyak OrderItem
