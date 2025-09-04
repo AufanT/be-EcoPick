@@ -15,6 +15,12 @@ app.get('/', (req, res) => {
         res.send('Welcome to API EcoPick')
     })
 
+const authRoutes = require('./routes/Auth.routes');
+const userRoutes = require('./routes/User.routes');
+
+app.use('/auth', authRoutes);
+app.use('/user', userRoutes);
+
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
