@@ -1,5 +1,3 @@
-// middlewares/authorize.js (Versi Final yang Benar)
-
 const db = require('../models');
 const User = db.User;
 const Role = db.Role;
