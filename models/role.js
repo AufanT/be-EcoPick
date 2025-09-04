@@ -21,8 +21,8 @@ module.exports = (sequelize, DataTypes) => {
     name: DataTypes.STRING
   }, {
     sequelize,
-    modelName: 'Roles',
-    timestamps: false
+    modelName: 'Role',
+    timestamps: false 
   });
   return Role;
 };

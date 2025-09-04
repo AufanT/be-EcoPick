@@ -21,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
     added_at: DataTypes.DATE
   }, {
     sequelize,
-    modelName: 'WishlistItems'
+    modelName: 'WishlistItem'
   });
   return WishlistItem;
 };

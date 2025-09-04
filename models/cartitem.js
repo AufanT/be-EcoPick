@@ -22,7 +22,7 @@ module.exports = (sequelize, DataTypes) => {
     quantity: DataTypes.INTEGER
   }, {
     sequelize,
-    modelName: 'CartItems'
+    modelName: 'CartItem'
   });
   return CartItem;
 };

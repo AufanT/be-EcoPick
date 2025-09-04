@@ -44,7 +44,7 @@ module.exports = (sequelize, DataTypes) => {
     is_eco_friendly_admin: DataTypes.BOOLEAN
   }, {
     sequelize,
-    modelName: 'Products'
+    modelName: 'Product'
   });
   return Product;
 };

@@ -23,7 +23,7 @@ module.exports = (sequelize, DataTypes) => {
     price_per_unit: DataTypes.DECIMAL
   }, {
     sequelize,
-    modelName: 'OrderItems'
+    modelName: 'OrderItem'
   });
   return OrderItem;
 };

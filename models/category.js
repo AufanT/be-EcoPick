@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
     description: DataTypes.TEXT
   }, {
     sequelize,
-    modelName: 'Categories'
+    modelName: 'Category'
   });
   return Category;
 };
