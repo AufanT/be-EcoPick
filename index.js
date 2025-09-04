@@ -20,12 +20,14 @@ const authRoutes = require('./routes/Auth.routes');
 const userRoutes = require('./routes/User.routes');
 const adminRoutes = require('./routes/Admin.routes');
 const productRoutes = require('./routes/Product.routes.js');
+const cartRoutes = require('./routes/Cart.routes.js');
 
 
 app.use('/auth', authRoutes);
 app.use('/user', userRoutes);
 app.use('/admin', [verifyToken, getUserWithRole, isAdmin], adminRoutes);
 app.use('/api', productRoutes);
+app.use('/api/cart', cartRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
