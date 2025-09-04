@@ -18,6 +18,8 @@ app.get('/', (req, res) => { res.send('Welcome to API EcoPick'); });
 
 const authRoutes = require('./routes/Auth.routes');
 const userRoutes = require('./routes/User.routes');
+const adminRoutes = require('./routes/Admin.routes');
+
 
 app.use('/auth', authRoutes);
 app.use('/user', userRoutes);
