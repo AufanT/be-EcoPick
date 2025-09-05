@@ -11,7 +11,13 @@ const createProductRules = () => {
         body('materials').isArray({ min: 1 }).withMessage('Bahan produk harus diisi.'),
         body('origin').notEmpty().withMessage('Asal produk wajib diisi.'),
         body('is_eco_friendly_ml').isBoolean().withMessage('Status ML harus boolean (true/false).'),
-        body('is_eco_friendly_admin').isBoolean().withMessage('Status Admin harus boolean (true/false).')
+        body('is_eco_friendly_admin').isBoolean().withMessage('Status Admin harus boolean (true/false).'),
+        body('main_material').notEmpty().withMessage('Jenis bahan utama wajib diisi.'),
+        body('is_biodegradable').isBoolean().withMessage('Nilai biodegradable harus true atau false.'),
+        body('recycled_content').optional().isInt({ min: 0, max: 100 }).withMessage('Persentase daur ulang harus antara 0 dan 100.'),
+        body('packaging_type').notEmpty().withMessage('Jenis kemasan wajib diisi.'),
+        body('is_reusable').isBoolean().withMessage('Nilai reusable harus true atau false.'),
+        body('has_eco_certification').isBoolean().withMessage('Nilai sertifikasi harus true atau false.')
     ];    
 };
 

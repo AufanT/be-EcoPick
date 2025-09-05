@@ -42,7 +42,13 @@ module.exports = (sequelize, DataTypes) => {
     materials: DataTypes.JSON,
     origin: DataTypes.STRING,
     is_eco_friendly_ml: DataTypes.BOOLEAN,
-    is_eco_friendly_admin: DataTypes.BOOLEAN
+    is_eco_friendly_admin: DataTypes.BOOLEAN,
+    main_material: DataTypes.STRING,
+    is_biodegradable: DataTypes.BOOLEAN,
+    recycled_content: DataTypes.INTEGER,
+    packaging_type: DataTypes.STRING,
+    is_reusable: DataTypes.BOOLEAN,
+    has_eco_certification: DataTypes.BOOLEAN
   }, {
     sequelize,
     modelName: 'Product'
