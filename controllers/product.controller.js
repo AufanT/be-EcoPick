@@ -104,3 +104,39 @@ exports.createReview = async (req, res) => {
         res.status(500).send({ message: "Gagal menambahkan ulasan: " + error.message });
     }
 };
+
+exports.getSimilarProductsRecommendation = async (req, res) => {
+    try {
+        const userId = req.userId;
+
+        // 1. Cari produk terakhir yang dilihat oleh pengguna
+        const lastViewedHistory = await UserProductViewHistory.findOne({
+            where: { user_id: userId },
+            order: [['updatedAt', 'DESC']], // Diurutkan berdasarkan kapan terakhir dilihat
+            include: [Product] // Ambil data produknya juga
+        });
+
+        // Jika tidak ada riwayat, jangan tampilkan rekomendasi apa pun
+        if (!lastViewedHistory || !lastViewedHistory.Product) {
+            return res.status(200).send([]); // Kirim array kosong
+        }
+
+        const lastViewedProduct = lastViewedHistory.Product;
+        const lastViewedCategoryId = lastViewedProduct.category_id;
+
+        // 2. Cari produk lain dalam kategori yang sama
+        const similarProducts = await Product.findAll({
+            where: {
+                category_id: lastViewedCategoryId,
+                // PENTING: Jangan sertakan produk yang sedang dilihat itu sendiri dalam rekomendasi
+                id: { [Op.ne]: lastViewedProduct.id } 
+            },
+            limit: 10 // Batasi jumlah rekomendasi menjadi 5 produk
+        });
+
+        res.status(200).send(similarProducts);
+
+    } catch (error) {
+        res.status(500).send({ message: "Gagal mengambil rekomendasi produk serupa: " + error.message });
+    }
+};

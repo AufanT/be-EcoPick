@@ -24,10 +24,10 @@ const cartRoutes = require('./routes/Cart.routes.js');
 const orderRoutes = require('./routes/Order.routes.js'); 
 
 
-app.use('/auth', authRoutes);
-app.use('/user', userRoutes);
-app.use('/admin', [verifyToken, getUserWithRole, isAdmin], adminRoutes);
-app.use('/api', productRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/user', userRoutes);
+app.use('/api/admin', [verifyToken, getUserWithRole, isAdmin], adminRoutes);
+app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 
