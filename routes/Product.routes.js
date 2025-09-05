@@ -6,6 +6,7 @@ const { verifyToken } = require('../middlewares/authenticate');
 const { getUserWithRole, isCustomer,  } = require('../middlewares/authorize');
 const { createReviewRules, validate } = require('../middlewares/reviewValidator');
 
+// --- Rute Khusus Terlindungi (Wajib Login) ---
 router.get('/recommendations', [verifyToken], controller.getSimilarProductsRecommendation);
 
 // --- Rute Publik (Tidak Perlu Login) ---
