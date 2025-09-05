@@ -51,9 +51,11 @@ exports.getAllProducts = async (req, res) => {
 exports.getProductById = async (req, res) => {
     try {
         const product = await Product.findByPk(req.params.id, {
+            attributes: { exclude: ['createdAt', 'updatedAt', 'is_eco_friendly_admin'] },
             include: [{
                 model: Review,
-                as: 'Reviews', // Pastikan alias ini cocok dengan di model Product Anda
+                as: 'Reviews', 
+                attributes: { exclude: ['updatedAt'] },
                 include: [{
                     model: User,
                     attributes: ['full_name']
