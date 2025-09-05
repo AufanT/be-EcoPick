@@ -1,6 +1,6 @@
-const { Product, Category, Review, User } = require('../models');
+const { Product, Category, Review, User, UserProductViewHistory } = require('../models');
 const { Op } = require('sequelize');
-
+const jwt = require('jsonwebtoken');
 // --- API UNTUK ETALASE PRODUK (PUBLIK) ---
 
 // GET /api/products - Mengambil semua produk dengan filter dan paginasi
@@ -65,6 +65,32 @@ exports.getProductById = async (req, res) => {
 
         if (!product) {
             return res.status(404).send({ message: "Produk tidak ditemukan." });
+        }
+        const authHeader = req.headers['authorization'];
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+            const token = authHeader.split(' ')[1];
+            
+            // Menggunakan Promise agar proses pencatatan ditunggu (await)
+            await new Promise((resolve, reject) => {
+                jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
+                    if (err) return resolve(); // Jika token error, abaikan & lanjutkan
+                    if (decoded) {
+                        try {
+                            const userId = decoded.id;
+                            // Mencatat atau memperbarui riwayat klik
+                            await UserProductViewHistory.upsert({
+                                user_id: userId,
+                                product_id: req.params.id
+                            });
+                            resolve();
+                        } catch (dbError) {
+                            reject(dbError); // Jika database error, hentikan proses
+                        }
+                    } else {
+                        resolve();
+                    }
+                });
+            });
         }
         res.status(200).send(product);
     } catch (error) {

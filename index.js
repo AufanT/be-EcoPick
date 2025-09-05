@@ -27,7 +27,7 @@ const orderRoutes = require('./routes/Order.routes.js');
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/admin', [verifyToken, getUserWithRole, isAdmin], adminRoutes);
-app.use('/api/products', productRoutes);
+app.use('/api', productRoutes); // productRoutes sudah mengandung prefix /api/products
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 
