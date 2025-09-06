@@ -22,7 +22,7 @@ const adminRoutes = require('./routes/Admin.routes');
 const productRoutes = require('./routes/Product.routes.js');
 const cartRoutes = require('./routes/Cart.routes.js');
 const orderRoutes = require('./routes/Order.routes.js'); 
-
+const wishlistRoutes = require('./routes/Wishlist.routes.js');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
@@ -30,6 +30,7 @@ app.use('/api/admin', [verifyToken, getUserWithRole, isAdmin], adminRoutes);
 app.use('/api', productRoutes); // productRoutes sudah mengandung prefix /api/products
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/wishlist', wishlistRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
