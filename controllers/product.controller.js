@@ -1,49 +1,120 @@
-const { Product, Category, Review, User, UserProductViewHistory } = require('../models');
+const { Product, Category, Review, User, UserProductViewHistory, sequelize } = require('../models');
 const { Op } = require('sequelize');
 const jwt = require('jsonwebtoken');
+
 // --- API UNTUK ETALASE PRODUK (PUBLIK) ---
 
-// GET /api/products - Mengambil semua produk dengan filter dan paginasi
+// GET /api/products - Mengambil semua produk dengan filter, paginasi, DAN rekomendasi
 exports.getAllProducts = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 12;
         const offset = (page - 1) * limit;
-
-        // Persiapan filter
+        
+        // Check if this is for homepage recommendation
+        const isHomepage = req.query.homepage === 'true';
+        
+        // Get user ID from middleware (if authenticated)
+        const userId = req.userId; // Dari verifyToken middleware
+        
         let whereClause = {};
-        const { search, categoryId, ecoFriendly } = req.query;
+        let orderClause = [['createdAt', 'DESC']]; // Default order
+        let isPersonalized = false;
 
-        // Filter berdasarkan pencarian (nama produk)
-        if (search) {
-            whereClause.name = { [Op.like]: `%${search}%` };
+        // HOMEPAGE LOGIC - Rekomendasi
+        if (isHomepage && userId) {
+            // Cek apakah user punya history
+            const userViews = await UserProductViewHistory.findAll({
+                where: { user_id: userId },
+                include: [{
+                    model: Product,
+                    attributes: ['category_id'],
+                    required: true
+                }],
+                limit: 10,
+                order: [['updatedAt', 'DESC']]
+            });
+
+            if (userViews.length > 0) {
+                // Get most viewed categories
+                const categoryIds = userViews.map(view => view.Product.category_id);
+                const categoryCount = {};
+                
+                categoryIds.forEach(catId => {
+                    categoryCount[catId] = (categoryCount[catId] || 0) + 1;
+                });
+                
+                // Sort categories by frequency
+                const sortedCategories = Object.entries(categoryCount)
+                    .sort(([,a], [,b]) => b - a)
+                    .map(([catId]) => parseInt(catId));
+
+                // Prioritize products from user's favorite categories
+                if (sortedCategories.length > 0) {
+                    whereClause.category_id = { [Op.in]: sortedCategories.slice(0, 3) }; // Top 3 categories
+                    orderClause = [
+                        // Custom ordering: favorite categories first, then by date
+                        [sequelize.literal(`CASE 
+                            WHEN category_id = ${sortedCategories[0]} THEN 1
+                            ${sortedCategories[1] ? `WHEN category_id = ${sortedCategories[1]} THEN 2` : ''}  
+                            ${sortedCategories[2] ? `WHEN category_id = ${sortedCategories[2]} THEN 3` : ''}
+                            ELSE 4 END`), 'ASC'],
+                        ['createdAt', 'DESC']
+                    ];
+                    isPersonalized = true;
+                }
+            }
         }
 
-        // Filter berdasarkan ID kategori
-        if (categoryId) {
-            whereClause.category_id = categoryId;
+        // SEARCH/FILTER LOGIC (existing) - Only if NOT homepage
+        if (!isHomepage) {
+            const { search } = req.query;
+
+            // Filter berdasarkan pencarian (nama produk)
+            if (search) {
+                whereClause.name = { [Op.like]: `%${search}%` };
+            }
         }
 
-        // Filter produk yang eco-friendly
-        if (ecoFriendly === 'true') {
-            whereClause.is_eco_friendly_admin = true;
-        }
-
+        // Execute query
         const { count, rows } = await Product.findAndCountAll({
             where: whereClause,
             limit: limit,
             offset: offset,
-            order: [['createdAt', 'DESC']]
+            order: orderClause
         });
+
+        // Determine response message and type
+        let responseMessage = '';
+        let responseType = 'search';
+        
+        if (isHomepage) {
+            if (isPersonalized) {
+                responseMessage = 'Rekomendasi Untuk Anda';
+                responseType = 'personalized';
+            } else {
+                responseMessage = 'Produk Terbaru';
+                responseType = 'latest';
+            }
+        } else {
+            responseMessage = `Ditemukan ${count} produk`;
+            responseType = 'search';
+        }
 
         res.status(200).send({
             totalItems: count,
             totalPages: Math.ceil(count / limit),
             currentPage: page,
-            products: rows
+            products: rows,
+            isPersonalized: isPersonalized,
+            message: responseMessage,
+            type: responseType
         });
+
     } catch (error) {
-        res.status(500).send({ message: "Gagal mengambil data produk: " + error.message });
+        res.status(500).send({ 
+            message: "Gagal mengambil data produk: " + error.message 
+        });
     }
 };
 

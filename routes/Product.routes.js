@@ -10,9 +10,9 @@ const { createReviewRules, validate } = require('../middlewares/reviewValidator'
 router.get('/products/recommendations', [verifyToken], controller.getSimilarProductsRecommendation);
 
 // --- Rute Publik (Tidak Perlu Login) ---
-router.get('/categories', controller.getAllCategories);
-router.get('/products', controller.getAllProducts);
-router.get('/products/:id', controller.getProductById);
+// router.get('/categories', controller.getAllCategories);
+router.get('/products', [verifyToken], controller.getAllProducts);
+router.get('/products/:id', [verifyToken], controller.getProductById);
 
 // --- Rute Terlindungi (Wajib Login) ---
 router.post('/products/:id/reviews', [verifyToken, getUserWithRole, isCustomer, createReviewRules(), validate],
