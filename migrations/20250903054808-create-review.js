@@ -30,7 +30,7 @@ module.exports = {
         onDelete: 'RESTRICT'
       },
       rating: {
-        type: Sequelize.TINYINT
+        type: Sequelize.INTEGER
       },
       comment: {
         type: Sequelize.TEXT
