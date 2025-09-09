@@ -9,7 +9,9 @@ module.exports = {
       {
         name: 'customer'
       }
-    ]);
+    ],{
+      ignoreDuplicates: true
+    });
   },
 
   async down(queryInterface, Sequelize) {
