@@ -23,6 +23,7 @@ const productRoutes = require('./routes/Product.routes.js');
 const cartRoutes = require('./routes/Cart.routes.js');
 const orderRoutes = require('./routes/Order.routes.js'); 
 const wishlistRoutes = require('./routes/Wishlist.routes.js');
+const trackingRoutes = require('./routes/Tracking.routes.js');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
@@ -31,6 +32,7 @@ app.use('/api', productRoutes); // productRoutes sudah mengandung prefix /api/pr
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/tracking', trackingRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

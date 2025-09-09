@@ -76,6 +76,13 @@ exports.checkout = async (req, res) => {
         await t.commit();
         res.status(201).send({ message: "Checkout berhasil! Pesanan Anda telah dibuat.", orderId: order.id });
 
+        await OrderTrackingHistory.create({
+        order_id: order.id,
+        status: 'paid',
+        status_description: 'Pembayaran berhasil dikonfirmasi',
+        updated_by: userId
+});
+
     } catch (error) {
         // Jika ada satu saja error, batalkan semua perubahan
         await t.rollback();

@@ -17,14 +17,23 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Order.init({
-    user_id: DataTypes.INTEGER,
-    total_amount: DataTypes.DECIMAL,
-    shipping_address: DataTypes.TEXT,
-    status: {
-      type: DataTypes.ENUM('pending', 'paid', 'shipped', 'delivered', 'cancelled'),
-      allowNull: false,
-      defaultValue: 'pending'
-    }
+  user_id: DataTypes.INTEGER,
+  total_amount: DataTypes.DECIMAL,
+  shipping_address: DataTypes.TEXT,
+  status: {
+    type: DataTypes.ENUM(
+      'pending', 'paid', 'confirmed', 'processing', 
+      'packed', 'shipped', 'out_for_delivery', 
+      'delivered', 'cancelled', 'returned'
+    ),
+    allowNull: false,
+    defaultValue: 'pending'
+  },
+  tracking_number: DataTypes.STRING,
+  estimated_delivery: DataTypes.DATE,
+  actual_delivery: DataTypes.DATE,
+  courier_name: DataTypes.STRING,
+  tracking_url: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'Order'
