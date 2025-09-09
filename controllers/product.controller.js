@@ -11,19 +11,14 @@ exports.getAllProducts = async (req, res) => {
         const limit = parseInt(req.query.limit) || 12;
         const offset = (page - 1) * limit;
         
-        // Check if this is for homepage recommendation
         const isHomepage = req.query.homepage === 'true';
-        
-        // Get user ID from middleware (if authenticated)
-        const userId = req.userId; // Dari verifyToken middleware
+        const userId = req.userId;
         
         let whereClause = {};
-        let orderClause = [['createdAt', 'DESC']]; // Default order
+        let orderClause = [['createdAt', 'DESC']];
         let isPersonalized = false;
 
-        // HOMEPAGE LOGIC - Rekomendasi
         if (isHomepage && userId) {
-            // Cek apakah user punya history
             const userViews = await UserProductViewHistory.findAll({
                 where: { user_id: userId },
                 include: [{
@@ -36,7 +31,6 @@ exports.getAllProducts = async (req, res) => {
             });
 
             if (userViews.length > 0) {
-                // Get most viewed categories
                 const categoryIds = userViews.map(view => view.Product.category_id);
                 const categoryCount = {};
                 
@@ -44,21 +38,20 @@ exports.getAllProducts = async (req, res) => {
                     categoryCount[catId] = (categoryCount[catId] || 0) + 1;
                 });
                 
-                // Sort categories by frequency
                 const sortedCategories = Object.entries(categoryCount)
                     .sort(([,a], [,b]) => b - a)
                     .map(([catId]) => parseInt(catId));
 
-                // Prioritize products from user's favorite categories
                 if (sortedCategories.length > 0) {
-                    whereClause.category_id = { [Op.in]: sortedCategories.slice(0, 3) }; // Top 3 categories
+                    whereClause.category_id = { [Op.in]: sortedCategories.slice(0, 3) };
+                    
+                    // FIXED: No more SQL injection - use safe Sequelize ordering
+                    const orderCases = sortedCategories.slice(0, 3).map((catId, index) => 
+                        `WHEN category_id = ${parseInt(catId)} THEN ${index + 1}`
+                    ).join(' ');
+                    
                     orderClause = [
-                        // Custom ordering: favorite categories first, then by date
-                        [sequelize.literal(`CASE 
-                            WHEN category_id = ${sortedCategories[0]} THEN 1
-                            ${sortedCategories[1] ? `WHEN category_id = ${sortedCategories[1]} THEN 2` : ''}  
-                            ${sortedCategories[2] ? `WHEN category_id = ${sortedCategories[2]} THEN 3` : ''}
-                            ELSE 4 END`), 'ASC'],
+                        [sequelize.literal(`CASE ${orderCases} ELSE 4 END`), 'ASC'],
                         ['createdAt', 'DESC']
                     ];
                     isPersonalized = true;
@@ -66,17 +59,27 @@ exports.getAllProducts = async (req, res) => {
             }
         }
 
-        // SEARCH/FILTER LOGIC (existing) - Only if NOT homepage
         if (!isHomepage) {
-            const { search } = req.query;
+            const { search, category_id, min_price, max_price } = req.query;
 
-            // Filter berdasarkan pencarian (nama produk)
+            // FIXED: Add more search options
             if (search) {
                 whereClause.name = { [Op.like]: `%${search}%` };
             }
+
+            if (category_id) {
+                whereClause.category_id = parseInt(category_id);
+            }
+
+            if (min_price) {
+                whereClause.price = { ...whereClause.price, [Op.gte]: parseFloat(min_price) };
+            }
+
+            if (max_price) {
+                whereClause.price = { ...whereClause.price, [Op.lte]: parseFloat(max_price) };
+            }
         }
 
-        // Execute query
         const { count, rows } = await Product.findAndCountAll({
             where: whereClause,
             limit: limit,
@@ -84,7 +87,6 @@ exports.getAllProducts = async (req, res) => {
             order: orderClause
         });
 
-        // Determine response message and type
         let responseMessage = '';
         let responseType = 'search';
         
@@ -101,19 +103,25 @@ exports.getAllProducts = async (req, res) => {
             responseType = 'search';
         }
 
+        // FIXED: Consistent response format
         res.status(200).send({
-            totalItems: count,
-            totalPages: Math.ceil(count / limit),
-            currentPage: page,
-            products: rows,
-            isPersonalized: isPersonalized,
-            message: responseMessage,
-            type: responseType
+            success: true,
+            data: {
+                totalItems: count,
+                totalPages: Math.ceil(count / limit),
+                currentPage: page,
+                products: rows,
+                isPersonalized: isPersonalized,
+                message: responseMessage,
+                type: responseType
+            }
         });
 
     } catch (error) {
+        console.error('Get all products error:', error);
         res.status(500).send({ 
-            message: "Gagal mengambil data produk: " + error.message 
+            success: false,
+            message: "Gagal mengambil data produk." 
         });
     }
 };

@@ -3,23 +3,31 @@ const { Op } = require('sequelize');
 
 // Generate tracking number
 const generateTrackingNumber = () => {
-    const prefix = 'ECP'; // EcoPick
+    const prefix = 'ECP';
     const timestamp = Date.now().toString().slice(-6);
     const random = Math.random().toString(36).substr(2, 4).toUpperCase();
     return `${prefix}${timestamp}${random}`;
 };
 
-// GET /api/tracking/:trackingNumber - Public tracking
+// GET /api/tracking/:trackingNumber - FIXED: Don't expose sensitive data
 exports.trackOrder = async (req, res) => {
     try {
         const { trackingNumber } = req.params;
+
+        // Validate tracking number format
+        if (!trackingNumber || !/^ECP\d{6}[A-Z0-9]{4}$/.test(trackingNumber)) {
+            return res.status(400).send({ 
+                success: false,
+                message: "Format nomor tracking tidak valid." 
+            });
+        }
 
         const order = await Order.findOne({
             where: { tracking_number: trackingNumber },
             include: [
                 {
                     model: User,
-                    attributes: ['full_name']
+                    attributes: ['id'] // Only get ID, not sensitive data
                 },
                 {
                     model: OrderItem,
@@ -33,22 +41,17 @@ exports.trackOrder = async (req, res) => {
 
         if (!order) {
             return res.status(404).send({ 
+                success: false,
                 message: "Nomor tracking tidak ditemukan." 
             });
         }
 
-        // Get tracking history
         const trackingHistory = await OrderTrackingHistory.findAll({
             where: { order_id: order.id },
-            include: [{
-                model: User,
-                as: 'updatedBy',
-                attributes: ['full_name']
-            }],
+            attributes: ['status', 'status_description', 'location', 'createdAt'], // Don't expose who updated
             order: [['createdAt', 'ASC']]
         });
 
-        // Calculate delivery progress
         const statusOrder = [
             'pending', 'paid', 'confirmed', 'processing', 
             'packed', 'shipped', 'out_for_delivery', 'delivered'
@@ -57,32 +60,38 @@ exports.trackOrder = async (req, res) => {
         const currentStatusIndex = statusOrder.indexOf(order.status);
         const progressPercentage = Math.max(0, (currentStatusIndex / (statusOrder.length - 1)) * 100);
 
+        // FIXED: Don't expose sensitive customer data
         res.status(200).send({
-            order: {
-                id: order.id,
-                tracking_number: order.tracking_number,
-                status: order.status,
-                total_amount: order.total_amount,
-                shipping_address: order.shipping_address,
-                estimated_delivery: order.estimated_delivery,
-                actual_delivery: order.actual_delivery,
-                courier_name: order.courier_name,
-                tracking_url: order.tracking_url,
-                createdAt: order.createdAt,
-                customer_name: order.User.full_name,
-                items: order.OrderItems
-            },
-            tracking_history: trackingHistory,
-            progress: {
-                percentage: Math.round(progressPercentage),
-                current_status: order.status,
-                is_delivered: order.status === 'delivered'
+            success: true,
+            data: {
+                order: {
+                    id: order.id,
+                    tracking_number: order.tracking_number,
+                    status: order.status,
+                    estimated_delivery: order.estimated_delivery,
+                    courier_name: order.courier_name,
+                    createdAt: order.createdAt,
+                    // REMOVED: customer_name, shipping_address, total_amount
+                    items: order.OrderItems.map(item => ({
+                        name: item.Product.name,
+                        quantity: item.quantity,
+                        image_url: item.Product.image_url
+                    }))
+                },
+                tracking_history: trackingHistory,
+                progress: {
+                    percentage: Math.round(progressPercentage),
+                    current_status: order.status,
+                    is_delivered: order.status === 'delivered'
+                }
             }
         });
 
     } catch (error) {
+        console.error('Track order error:', error);
         res.status(500).send({ 
-            message: "Gagal melakukan tracking: " + error.message 
+            success: false,
+            message: "Gagal melakukan tracking." 
         });
     }
 };
