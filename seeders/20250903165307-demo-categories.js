@@ -4,19 +4,19 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.bulkInsert('Categories', [
       {
-        name: 'Fashion Berkelanjutan',
+        name: 'Lifestyle',
         description: 'Pakaian dan aksesoris ramah lingkungan',
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
-        name: 'Produk Rumah Eco',
+        name: 'Kitchen',
         description: 'Peralatan rumah tangga ramah lingkungan',
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
-        name: 'Makanan Organik',
+        name: 'Personal Care',
         description: 'Makanan dan minuman organik',
         createdAt: new Date(),
         updatedAt: new Date()
