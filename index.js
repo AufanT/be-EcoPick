@@ -4,9 +4,9 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const swaggerUi = require('swagger-ui-express'); 
 const YAML = require('yamljs');
-const app = express();
 const { verifyToken } = require("./middlewares/authenticate.js");
 const { getUserWithRole, isAdmin } = require("./middlewares/authorize.js");
+const app = express();
 
 app.use(cors());
 app.use(express.json());
