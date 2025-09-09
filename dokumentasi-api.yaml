@@ -1,0 +1,2252 @@
+openapi: 3.0.0
+info:
+  title: EcoPick API
+  description: API dokumentasi lengkap untuk aplikasi EcoPick - Platform E-commerce Produk Ramah Lingkungan
+  version: 1.0.0
+  # contact:
+  #   name: EcoPick Team
+  #   email: support@ecopick.com
+
+servers:
+  - url: http://localhost:3000/api
+    description: Development server
+  - url: https://api.ecopick.com/api
+    description: Production server
+
+# Security schemes
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token yang diperoleh dari login
+
+  schemas:
+    # Error Schemas
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: "Error message"
+
+    ValidationError:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: "Validasi gagal"
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              message:
+                type: string
+
+    # Auth Schemas
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        full_name:
+          type: string
+          example: "John Doe"
+        email:
+          type: string
+          format: email
+          example: "john@example.com"
+        role_id:
+          type: integer
+          example: 2
+        address:
+          type: string
+          example: "Jl. Merdeka No. 123"
+        phone_number:
+          type: string
+          example: "08123456789"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        role:
+          type: object
+          properties:
+            name:
+              type: string
+              example: "customer"
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: "john@example.com"
+        password:
+          type: string
+          example: "password123"
+
+    RegisterRequest:
+      type: object
+      required:
+        - full_name
+        - email
+        - password
+        - address
+        - phone_number
+      properties:
+        full_name:
+          type: string
+          example: "John Doe"
+        email:
+          type: string
+          format: email
+          example: "john@example.com"
+        password:
+          type: string
+          minLength: 6
+          example: "password123"
+        address:
+          type: string
+          example: "Jl. Merdeka No. 123"
+        phone_number:
+          type: string
+          example: "08123456789"
+
+    # Product Schemas
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Tas Ramah Lingkungan"
+        category_id:
+          type: integer
+          example: 1
+        description:
+          type: string
+          example: "Tas yang terbuat dari bahan daur ulang"
+        price:
+          type: number
+          format: decimal
+          example: 150000.00
+        stock_quantity:
+          type: integer
+          example: 50
+        image_url:
+          type: string
+          format: uri
+          example: "https://example.com/image.jpg"
+        materials:
+          type: array
+          items:
+            type: string
+          example: ["Cotton", "Recycled Plastic"]
+        origin:
+          type: string
+          example: "Indonesia"
+        is_eco_friendly_ml:
+          type: boolean
+          example: true
+        is_eco_friendly_admin:
+          type: boolean
+          example: true
+        main_material:
+          type: string
+          example: "Cotton"
+        is_biodegradable:
+          type: boolean
+          example: true
+        recycled_content:
+          type: integer
+          minimum: 0
+          maximum: 100
+          example: 80
+        packaging_type:
+          type: string
+          example: "Biodegradable"
+        is_reusable:
+          type: boolean
+          example: true
+        has_eco_certification:
+          type: boolean
+          example: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        Reviews:
+          type: array
+          items:
+            $ref: '#/components/schemas/Review'
+
+    ProductsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            totalItems:
+              type: integer
+              example: 100
+            totalPages:
+              type: integer
+              example: 10
+            currentPage:
+              type: integer
+              example: 1
+            products:
+              type: array
+              items:
+                $ref: '#/components/schemas/Product'
+            isPersonalized:
+              type: boolean
+              example: true
+            message:
+              type: string
+              example: "Rekomendasi Untuk Anda"
+            type:
+              type: string
+              example: "personalized"
+
+    CreateProductRequest:
+      type: object
+      required:
+        - name
+        - category_id
+        - description
+        - price
+        - stock_quantity
+        - image_url
+        - materials
+        - origin
+        - is_eco_friendly_ml
+        - is_eco_friendly_admin
+        - main_material
+        - is_biodegradable
+        - packaging_type
+        - is_reusable
+        - has_eco_certification
+      properties:
+        name:
+          type: string
+          example: "Tas Ramah Lingkungan"
+        category_id:
+          type: integer
+          example: 1
+        description:
+          type: string
+          example: "Tas yang terbuat dari bahan daur ulang"
+        price:
+          type: number
+          format: decimal
+          example: 150000.00
+        stock_quantity:
+          type: integer
+          minimum: 0
+          example: 50
+        image_url:
+          type: string
+          format: uri
+          example: "https://example.com/image.jpg"
+        materials:
+          type: array
+          items:
+            type: string
+          minItems: 1
+          example: ["Cotton", "Recycled Plastic"]
+        origin:
+          type: string
+          example: "Indonesia"
+        is_eco_friendly_ml:
+          type: boolean
+          example: true
+        is_eco_friendly_admin:
+          type: boolean
+          example: true
+        main_material:
+          type: string
+          example: "Cotton"
+        is_biodegradable:
+          type: boolean
+          example: true
+        recycled_content:
+          type: integer
+          minimum: 0
+          maximum: 100
+          example: 80
+        packaging_type:
+          type: string
+          example: "Biodegradable"
+        is_reusable:
+          type: boolean
+          example: true
+        has_eco_certification:
+          type: boolean
+          example: true
+
+    # Category Schemas
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Fashion"
+        description:
+          type: string
+          example: "Produk fashion ramah lingkungan"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    # Review Schemas
+    Review:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        user_id:
+          type: integer
+          example: 1
+        product_id:
+          type: integer
+          example: 1
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          example: 5
+        comment:
+          type: string
+          example: "Produk sangat bagus!"
+        createdAt:
+          type: string
+          format: date-time
+        User:
+          type: object
+          properties:
+            full_name:
+              type: string
+              example: "John Doe"
+
+    CreateReviewRequest:
+      type: object
+      required:
+        - rating
+        - comment
+      properties:
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          example: 5
+        comment:
+          type: string
+          example: "Produk sangat bagus!"
+
+    # Cart Schemas
+    CartItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        user_id:
+          type: integer
+          example: 1
+        product_id:
+          type: integer
+          example: 1
+        quantity:
+          type: integer
+          example: 2
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        Product:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+            name:
+              type: string
+              example: "Tas Ramah Lingkungan"
+            price:
+              type: number
+              format: decimal
+              example: 150000.00
+            image_url:
+              type: string
+              example: "https://example.com/image.jpg"
+
+    CartResponse:
+      type: object
+      properties:
+        cartItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/CartItem'
+        totalPrice:
+          type: number
+          format: decimal
+          example: 300000.00
+
+    AddToCartRequest:
+      type: object
+      required:
+        - product_id
+        - quantity
+      properties:
+        product_id:
+          type: integer
+          example: 1
+        quantity:
+          type: integer
+          minimum: 1
+          example: 2
+
+    UpdateCartRequest:
+      type: object
+      required:
+        - quantity
+      properties:
+        quantity:
+          type: integer
+          minimum: 1
+          example: 3
+
+    # Order Schemas
+    Order:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        user_id:
+          type: integer
+          example: 1
+        total_amount:
+          type: number
+          format: decimal
+          example: 300000.00
+        shipping_address:
+          type: string
+          example: "Jl. Merdeka No. 123"
+        status:
+          type: string
+          enum: [pending, paid, confirmed, processing, packed, shipped, out_for_delivery, delivered, cancelled, returned]
+          example: "paid"
+        tracking_number:
+          type: string
+          example: "ECP123456ABCD"
+        estimated_delivery:
+          type: string
+          format: date-time
+        actual_delivery:
+          type: string
+          format: date-time
+        courier_name:
+          type: string
+          example: "JNE"
+        tracking_url:
+          type: string
+          format: uri
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        User:
+          $ref: '#/components/schemas/User'
+        OrderItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+
+    OrderItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        order_id:
+          type: integer
+          example: 1
+        product_id:
+          type: integer
+          example: 1
+        quantity:
+          type: integer
+          example: 2
+        price_per_unit:
+          type: number
+          format: decimal
+          example: 150000.00
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        Product:
+          $ref: '#/components/schemas/Product'
+
+    OrderHistoryResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            totalItems:
+              type: integer
+              example: 10
+            totalPages:
+              type: integer
+              example: 2
+            currentPage:
+              type: integer
+              example: 1
+            orders:
+              type: array
+              items:
+                $ref: '#/components/schemas/Order'
+
+    CheckoutResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Checkout berhasil! Pesanan Anda telah dibuat."
+        data:
+          type: object
+          properties:
+            orderId:
+              type: integer
+              example: 1
+            totalAmount:
+              type: number
+              format: decimal
+              example: 300000.00
+            status:
+              type: string
+              example: "paid"
+
+    # Wishlist Schemas
+    WishlistItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        user_id:
+          type: integer
+          example: 1
+        product_id:
+          type: integer
+          example: 1
+        added_at:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        product:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+            name:
+              type: string
+              example: "Tas Ramah Lingkungan"
+            price:
+              type: number
+              format: decimal
+              example: 150000.00
+            image_url:
+              type: string
+              example: "https://example.com/image.jpg"
+            stock_quantity:
+              type: integer
+              example: 50
+
+    WishlistResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Ditemukan 5 item di wishlist"
+        wishlistItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/WishlistItem'
+
+    AddToWishlistRequest:
+      type: object
+      required:
+        - product_id
+      properties:
+        product_id:
+          type: integer
+          example: 1
+
+    WishlistStatusResponse:
+      type: object
+      properties:
+        isInWishlist:
+          type: boolean
+          example: true
+        productId:
+          type: integer
+          example: 1
+
+    # Tracking Schemas
+    OrderTrackingHistory:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        order_id:
+          type: integer
+          example: 1
+        status:
+          type: string
+          enum: [pending, paid, confirmed, processing, packed, shipped, out_for_delivery, delivered, cancelled, returned]
+          example: "shipped"
+        status_description:
+          type: string
+          example: "Pesanan dalam perjalanan"
+        location:
+          type: string
+          example: "Jakarta"
+        notes:
+          type: string
+          example: "Paket sedang menuju kota tujuan"
+        createdAt:
+          type: string
+          format: date-time
+
+    TrackingResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            order:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 1
+                tracking_number:
+                  type: string
+                  example: "ECP123456ABCD"
+                status:
+                  type: string
+                  example: "shipped"
+                estimated_delivery:
+                  type: string
+                  format: date-time
+                courier_name:
+                  type: string
+                  example: "JNE"
+                createdAt:
+                  type: string
+                  format: date-time
+                items:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        example: "Tas Ramah Lingkungan"
+                      quantity:
+                        type: integer
+                        example: 2
+                      image_url:
+                        type: string
+                        example: "https://example.com/image.jpg"
+            tracking_history:
+              type: array
+              items:
+                $ref: '#/components/schemas/OrderTrackingHistory'
+            progress:
+              type: object
+              properties:
+                percentage:
+                  type: integer
+                  example: 75
+                current_status:
+                  type: string
+                  example: "shipped"
+                is_delivered:
+                  type: boolean
+                  example: false
+
+    UpdateTrackingRequest:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum: [pending, paid, confirmed, processing, packed, shipped, out_for_delivery, delivered, cancelled, returned]
+          example: "shipped"
+        status_description:
+          type: string
+          maxLength: 255
+          example: "Pesanan dalam perjalanan"
+        location:
+          type: string
+          maxLength: 255
+          example: "Jakarta"
+        notes:
+          type: string
+          example: "Paket sedang menuju kota tujuan"
+        courier_name:
+          type: string
+          maxLength: 100
+          example: "JNE"
+        tracking_url:
+          type: string
+          format: uri
+          example: "https://tracking.jne.co.id/trace"
+        estimated_delivery:
+          type: string
+          format: date-time
+          example: "2024-09-15T10:00:00Z"
+
+    # User Profile Schemas
+    UpdateProfileRequest:
+      type: object
+      properties:
+        full_name:
+          type: string
+          minLength: 2
+          maxLength: 100
+          example: "John Doe Updated"
+        address:
+          type: string
+          minLength: 10
+          maxLength: 500
+          example: "Jl. Merdeka Baru No. 456"
+        phone_number:
+          type: string
+          pattern: '^(\+62|62|0)[0-9]{9,13}$'
+          example: "08123456789"
+
+    ChangePasswordRequest:
+      type: object
+      required:
+        - currentPassword
+        - newPassword
+        - confirmPassword
+      properties:
+        currentPassword:
+          type: string
+          example: "oldpassword123"
+        newPassword:
+          type: string
+          minLength: 6
+          example: "newpassword123"
+        confirmPassword:
+          type: string
+          example: "newpassword123"
+
+# API Paths
+paths:
+  # Authentication Endpoints
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Registrasi user baru
+      description: Membuat akun customer baru
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Registrasi berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Pengguna berhasil terdaftar!"
+                  data:
+                    type: object
+                    properties:
+                      userId:
+                        type: integer
+                        example: 1
+                      email:
+                        type: string
+                        example: "john@example.com"
+                      full_name:
+                        type: string
+                        example: "John Doe"
+        '409':
+          description: Email sudah terdaftar
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validasi gagal
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Login user
+      description: Login untuk mendapatkan token JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Login berhasil"
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 1
+                          full_name:
+                            type: string
+                            example: "John Doe"
+                          email:
+                            type: string
+                            example: "john@example.com"
+                      accessToken:
+                        type: string
+                        example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        '401':
+          description: Password salah
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Email tidak terdaftar
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # User Profile Endpoints
+  /user/profile:
+    get:
+      tags:
+        - User Profile
+      summary: Mendapatkan profil user
+      description: Mengambil data profil user yang sedang login
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Data profil berhasil diambil
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Token tidak valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: User tidak ditemukan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      tags:
+        - User Profile
+      summary: Update profil user
+      description: Memperbarui data profil user
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+      responses:
+        '200':
+          description: Profil berhasil diperbarui
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Profil berhasil diperbarui!"
+                  data:
+                    $ref: '#/components/schemas/User'
+        '422':
+          description: Validasi gagal
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+  /user/change-password:
+    put:
+      tags:
+        - User Profile
+      summary: Ubah password
+      description: Mengubah password user
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+      responses:
+        '200':
+          description: Password berhasil diubah
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Password berhasil diubah!"
+        '400':
+          description: Password lama salah atau password baru sama dengan lama
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validasi gagal
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+  # Product Endpoints
+  /products:
+    get:
+      tags:
+        - Products
+      summary: Mendapatkan semua produk
+      description: Mengambil daftar produk dengan filter, paginasi, dan rekomendasi
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Halaman yang diminta
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 12
+          description: Jumlah item per halaman
+        - name: homepage
+          in: query
+          schema:
+            type: boolean
+            default: false
+          description: Apakah untuk homepage (akan menampilkan rekomendasi)
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Kata kunci pencarian produk
+        - name: category_id
+          in: query
+          schema:
+            type: integer
+          description: Filter berdasarkan kategori
+        - name: min_price
+          in: query
+          schema:
+            type: number
+          description: Harga minimum
+        - name: max_price
+          in: query
+          schema:
+            type: number
+          description: Harga maksimum
+      responses:
+        '200':
+          description: Daftar produk berhasil diambil
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductsResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /products/{id}:
+    get:
+      tags:
+        - Products
+      summary: Mendapatkan detail produk
+      description: Mengambil detail produk berdasarkan ID beserta ulasannya
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID produk
+      responses:
+        '200':
+          description: Detail produk berhasil diambil
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Produk tidak ditemukan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /products/{id}/reviews:
+    post:
+      tags:
+        - Products
+      summary: Membuat ulasan produk
+      description: Menambahkan ulasan untuk produk tertentu
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID produk
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReviewRequest'
+      responses:
+        '201':
+          description: Ulasan berhasil ditambahkan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Ulasan berhasil ditambahkan!"
+                  data:
+                    $ref: '#/components/schemas/Review'
+        '422':
+          description: Validasi gagal
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+  /products/recommendations:
+    get:
+      tags:
+        - Products
+      summary: Mendapatkan rekomendasi produk serupa
+      description: Mengambil rekomendasi produk berdasarkan riwayat view user
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Rekomendasi produk berhasil diambil
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+
+  # Cart Endpoints
+  /cart:
+    get:
+      tags:
+        - Shopping Cart
+      summary: Mendapatkan isi keranjang
+      description: Mengambil semua item di keranjang belanja beserta total harga
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Isi keranjang berhasil diambil
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CartResponse'
+
+    post:
+      tags:
+        - Shopping Cart
+      summary: Menambah produk ke keranjang
+      description: Menambahkan atau menambah kuantitas produk di keranjang
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddToCartRequest'
+      responses:
+        '201':
+          description: Produk berhasil ditambahkan ke keranjang
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Produk berhasil ditambahkan ke keranjang!"
+                  data:
+                    $ref: '#/components/schemas/CartItem'
+        '422':
+          description: Validasi gagal
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+  /cart/{productId}:
+    put:
+      tags:
+        - Shopping Cart
+      summary: Update kuantitas item di keranjang
+      description: Mengubah kuantitas produk tertentu di keranjang
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID produk
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCartRequest'
+      responses:
+        '200':
+          description: Kuantitas berhasil diperbarui
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Kuantitas item berhasil diperbarui."
+                  data:
+                    $ref: '#/components/schemas/CartItem'
+        '404':
+          description: Item tidak ditemukan di keranjang
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      tags:
+        - Shopping Cart
+      summary: Menghapus item dari keranjang
+      description: Menghapus produk tertentu dari keranjang belanja
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID produk
+      responses:
+        '200':
+          description: Item berhasil dihapus dari keranjang
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Item berhasil dihapus dari keranjang."
+        '404':
+          description: Item tidak ditemukan di keranjang
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # Order Endpoints
+  /orders/checkout:
+    post:
+      tags:
+        - Orders
+      summary: Checkout pesanan
+      description: Membuat pesanan dari semua item di keranjang
+      security:
+        - BearerAuth: []
+      responses:
+        '201':
+          description: Checkout berhasil
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckoutResponse'
+        '400':
+          description: Keranjang kosong atau stok tidak mencukupi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /orders:
+    get:
+      tags:
+        - Orders
+      summary: Mendapatkan riwayat pesanan
+      description: Mengambil riwayat pesanan user dengan paginasi
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Halaman yang diminta
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+          description: Jumlah item per halaman
+      responses:
+        '200':
+          description: Riwayat pesanan berhasil diambil
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderHistoryResponse'
+
+  /orders/{id}:
+    get:
+      tags:
+        - Orders
+      summary: Mendapatkan detail pesanan
+      description: Mengambil detail pesanan tertentu milik user
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID pesanan
+      responses:
+        '200':
+          description: Detail pesanan berhasil diambil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Order'
+        '404':
+          description: Pesanan tidak ditemukan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # Wishlist Endpoints
+  /wishlist:
+    get:
+      tags:
+        - Wishlist
+      summary: Mendapatkan wishlist
+      description: Mengambil semua item di wishlist user
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Wishlist berhasil diambil
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WishlistResponse'
+
+    post:
+      tags:
+        - Wishlist
+      summary: Menambah produk ke wishlist
+      description: Menambahkan produk ke wishlist user
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddToWishlistRequest'
+      responses:
+        '201':
+          description: Produk berhasil ditambahkan ke wishlist
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Produk berhasil ditambahkan ke wishlist!"
+                  data:
+                    $ref: '#/components/schemas/WishlistItem'
+        '404':
+          description: Produk tidak ditemukan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Produk sudah ada di wishlist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validasi gagal
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+  /wishlist/{productId}:
+    delete:
+      tags:
+        - Wishlist
+      summary: Menghapus produk dari wishlist
+      description: Menghapus produk tertentu dari wishlist user
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID produk
+      responses:
+        '200':
+          description: Produk berhasil dihapus dari wishlist
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Produk berhasil dihapus dari wishlist."
+        '404':
+          description: Produk tidak ditemukan di wishlist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /wishlist/check/{productId}:
+    get:
+      tags:
+        - Wishlist
+      summary: Cek status wishlist produk
+      description: Mengecek apakah produk ada di wishlist user
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID produk
+      responses:
+        '200':
+          description: Status wishlist berhasil dicek
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WishlistStatusResponse'
+
+  # Tracking Endpoints
+  /tracking/{trackingNumber}:
+    get:
+      tags:
+        - Tracking
+      summary: Tracking pesanan publik
+      description: Melacak pesanan menggunakan nomor tracking (tidak perlu login)
+      parameters:
+        - name: trackingNumber
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^ECP\\d{6}[A-Z0-9]{4}"
+          description: Nomor tracking pesanan
+          example: "ECP123456ABCD"
+      responses:
+        '200':
+          description: Data tracking berhasil diambil
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrackingResponse'
+        '400':
+          description: Format nomor tracking tidak valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Nomor tracking tidak ditemukan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /tracking/my-orders/{id}:
+    get:
+      tags:
+        - Tracking
+      summary: Tracking pesanan customer
+      description: Melacak pesanan tertentu milik customer yang sedang login
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID pesanan
+      responses:
+        '200':
+          description: Data tracking berhasil diambil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  order:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      tracking_number:
+                        type: string
+                        example: "ECP123456ABCD"
+                      status:
+                        type: string
+                        example: "shipped"
+                      total_amount:
+                        type: number
+                        example: 300000.00
+                      shipping_address:
+                        type: string
+                        example: "Jl. Merdeka No. 123"
+                      estimated_delivery:
+                        type: string
+                        format: date-time
+                      courier_name:
+                        type: string
+                        example: "JNE"
+                      tracking_url:
+                        type: string
+                        format: uri
+                      createdAt:
+                        type: string
+                        format: date-time
+                      items:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/OrderItem'
+                  tracking_history:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OrderTrackingHistory'
+                  tracking_available:
+                    type: boolean
+                    example: true
+        '404':
+          description: Pesanan tidak ditemukan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /tracking/admin/orders/{id}/update:
+    post:
+      tags:
+        - Tracking (Admin)
+      summary: Update tracking pesanan (Admin)
+      description: Memperbarui status tracking pesanan oleh admin
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID pesanan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTrackingRequest'
+      responses:
+        '200':
+          description: Status tracking berhasil diperbarui
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Status pesanan berhasil diperbarui!"
+                  order:
+                    $ref: '#/components/schemas/Order'
+                  tracking_number:
+                    type: string
+                    example: "ECP123456ABCD"
+        '404':
+          description: Pesanan tidak ditemukan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validasi gagal
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+  # Admin Endpoints
+  /admin/products:
+    get:
+      tags:
+        - Admin - Products
+      summary: Mendapatkan semua produk (Admin)
+      description: Mengambil semua produk dengan paginasi untuk admin
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Halaman yang diminta
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+          description: Jumlah item per halaman
+      responses:
+        '200':
+          description: Daftar produk berhasil diambil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalItems:
+                    type: integer
+                    example: 100
+                  totalPages:
+                    type: integer
+                    example: 10
+                  currentPage:
+                    type: integer
+                    example: 1
+                  products:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+        '403':
+          description: Akses ditolak (bukan admin)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      tags:
+        - Admin - Products
+      summary: Membuat produk baru (Admin)
+      description: Menambahkan produk baru ke sistem
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProductRequest'
+      responses:
+        '201':
+          description: Produk berhasil dibuat
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Produk berhasil dibuat!"
+                  data:
+                    $ref: '#/components/schemas/Product'
+        '422':
+          description: Validasi gagal
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '403':
+          description: Akses ditolak (bukan admin)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /admin/products/{id}:
+    get:
+      tags:
+        - Admin - Products
+      summary: Mendapatkan detail produk (Admin)
+      description: Mengambil detail produk berdasarkan ID untuk admin
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID produk
+      responses:
+        '200':
+          description: Detail produk berhasil diambil
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Produk tidak ditemukan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Akses ditolak (bukan admin)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      tags:
+        - Admin - Products
+      summary: Update produk (Admin)
+      description: Memperbarui data produk
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID produk
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProductRequest'
+      responses:
+        '200':
+          description: Produk berhasil diperbarui
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Produk berhasil diperbarui!"
+                  data:
+                    $ref: '#/components/schemas/Product'
+        '404':
+          description: Produk tidak ditemukan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Akses ditolak (bukan admin)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      tags:
+        - Admin - Products
+      summary: Hapus produk (Admin)
+      description: Menghapus produk dari sistem
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID produk
+      responses:
+        '200':
+          description: Produk berhasil dihapus
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Produk berhasil dihapus."
+        '404':
+          description: Produk tidak ditemukan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Akses ditolak (bukan admin)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /admin/categories:
+    get:
+      tags:
+        - Admin - Categories
+      summary: Mendapatkan semua kategori (Admin)
+      description: Mengambil semua kategori untuk admin
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Daftar kategori berhasil diambil
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+        '403':
+          description: Akses ditolak (bukan admin)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      tags:
+        - Admin - Categories
+      summary: Membuat kategori baru (Admin)
+      description: Menambahkan kategori baru ke sistem
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - description
+              properties:
+                name:
+                  type: string
+                  example: "Fashion Ramah Lingkungan"
+                description:
+                  type: string
+                  example: "Kategori untuk produk fashion yang ramah lingkungan"
+      responses:
+        '201':
+          description: Kategori berhasil dibuat
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Kategori berhasil dibuat!"
+                  data:
+                    $ref: '#/components/schemas/Category'
+        '403':
+          description: Akses ditolak (bukan admin)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /admin/categories/{id}:
+    put:
+      tags:
+        - Admin - Categories
+      summary: Update kategori (Admin)
+      description: Memperbarui data kategori
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID kategori
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Fashion Ramah Lingkungan Updated"
+                description:
+                  type: string
+                  example: "Kategori untuk produk fashion yang ramah lingkungan - Updated"
+      responses:
+        '200':
+          description: Kategori berhasil diperbarui
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Kategori berhasil diperbarui!"
+                  data:
+                    $ref: '#/components/schemas/Category'
+        '404':
+          description: Kategori tidak ditemukan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Akses ditolak (bukan admin)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      tags:
+        - Admin - Categories
+      summary: Hapus kategori (Admin)
+      description: Menghapus kategori dari sistem
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID kategori
+      responses:
+        '200':
+          description: Kategori berhasil dihapus
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Kategori berhasil dihapus."
+        '404':
+          description: Kategori tidak ditemukan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Akses ditolak (bukan admin)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /admin/orders:
+    get:
+      tags:
+        - Admin - Orders
+      summary: Mendapatkan semua pesanan (Admin)
+      description: Mengambil semua pesanan dengan filter status untuk admin
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, paid, confirmed, processing, packed, shipped, out_for_delivery, delivered, cancelled, returned]
+          description: Filter berdasarkan status pesanan
+      responses:
+        '200':
+          description: Daftar pesanan berhasil diambil
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+        '403':
+          description: Akses ditolak (bukan admin)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /admin/orders/{id}:
+    get:
+      tags:
+        - Admin - Orders
+      summary: Mendapatkan detail pesanan (Admin)
+      description: Mengambil detail pesanan tertentu untuk admin
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID pesanan
+      responses:
+        '200':
+          description: Detail pesanan berhasil diambil
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '404':
+          description: Pesanan tidak ditemukan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Akses ditolak (bukan admin)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /admin/users:
+    get:
+      tags:
+        - Admin - Users
+      summary: Mendapatkan semua pengguna (Admin)
+      description: Mengambil daftar semua pengguna untuk admin
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Daftar pengguna berhasil diambil
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '403':
+          description: Akses ditolak (bukan admin)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /admin/users/{id}:
+    get:
+      tags:
+        - Admin - Users
+      summary: Mendapatkan detail pengguna (Admin)
+      description: Mengambil detail pengguna tertentu untuk admin
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID pengguna
+      responses:
+        '200':
+          description: Detail pengguna berhasil diambil
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: Pengguna tidak ditemukan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Akses ditolak (bukan admin)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      tags:
+        - Admin - Users
+      summary: Update pengguna (Admin)
+      description: Memperbarui data pengguna (kecuali password)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID pengguna
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                full_name:
+                  type: string
+                  example: "John Doe Updated"
+                email:
+                  type: string
+                  format: email
+                  example: "john.updated@example.com"
+                address:
+                  type: string
+                  example: "Jl. Merdeka Baru No. 456"
+                phone_number:
+                  type: string
+                  example: "08123456789"
+                role_id:
+                  type: integer
+                  example: 1
+      responses:
+        '200':
+          description: Pengguna berhasil diperbarui
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Pengguna berhasil diperbarui!"
+        '404':
+          description: Pengguna tidak ditemukan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Akses ditolak (bukan admin)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+# Tags untuk pengelompokan endpoint
+tags:
+  - name: Authentication
+    description: Endpoint untuk autentikasi pengguna
+  - name: User Profile
+    description: Endpoint untuk manajemen profil pengguna
+  - name: Products
+    description: Endpoint untuk produk (public dan customer)
+  - name: Shopping Cart
+    description: Endpoint untuk keranjang belanja
+  - name: Orders
+    description: Endpoint untuk pesanan
+  - name: Wishlist
+    description: Endpoint untuk wishlist
+  - name: Tracking
+    description: Endpoint untuk tracking pesanan
+  - name: Tracking (Admin)
+    description: Endpoint untuk tracking pesanan (admin only)
+  - name: Admin - Products
+    description: Endpoint manajemen produk untuk admin
+  - name: Admin - Categories
+    description: Endpoint manajemen kategori untuk admin
+  - name: Admin - Orders
+    description: Endpoint manajemen pesanan untuk admin
+  - name: Admin - Users
+    description: Endpoint manajemen pengguna untuk admin

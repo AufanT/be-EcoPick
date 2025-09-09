@@ -4,7 +4,6 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const swaggerUi = require('swagger-ui-express'); 
 const YAML = require('yamljs');
-const swaggerDocument = YAML.load('./dokumentasi-api.yaml');
 const app = express();
 const { verifyToken } = require("./middlewares/authenticate.js");
 const { getUserWithRole, isAdmin } = require("./middlewares/authorize.js");
@@ -16,6 +15,7 @@ dotenv.config();
 
 app.get('/', (req, res) => { res.send('Welcome to API EcoPick'); });
 
+const swaggerDocument = YAML.load('./dokumentasi-api.yaml');
 const authRoutes = require('./routes/Auth.routes');
 const userRoutes = require('./routes/User.routes');
 const adminRoutes = require('./routes/Admin.routes');
@@ -33,6 +33,7 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/tracking', trackingRoutes);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
