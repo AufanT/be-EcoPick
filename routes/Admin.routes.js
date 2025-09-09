@@ -19,7 +19,7 @@ router.delete('/categories/:id', controller.deleteCategory);
 // --- Routes untuk Pesanan ---
 router.get('/orders', controller.getAllOrders);
 router.get('/orders/:id', controller.getOrderById);
-router.patch('/orders/:id', controller.updateOrderStatus);
+// router.patch('/orders/:id', controller.updateOrderStatus);
 
 // --- Routes untuk Pengguna ---
 router.get('/users', controller.getAllUsers);

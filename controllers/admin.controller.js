@@ -169,18 +169,18 @@ exports.getOrderById = async (req, res) => {
 };
 
 // PATCH /api/admin/orders/:id
-exports.updateOrderStatus = async (req, res) => {
-    try {
-        const order = await Order.findByPk(req.params.id);
-        if (!order) {
-            return res.status(404).send({ message: "Pesanan tidak ditemukan." });
-        }
-        await order.update({ status: req.body.status });
-        res.status(200).send({ message: "Status pesanan berhasil diperbarui!", data: order });
-    } catch (error) {
-        res.status(500).send({ message: "Gagal memperbarui status pesanan: " + error.message });
-    }
-};
+// exports.updateOrderStatus = async (req, res) => {
+//     try {
+//         const order = await Order.findByPk(req.params.id);
+//         if (!order) {
+//             return res.status(404).send({ message: "Pesanan tidak ditemukan." });
+//         }
+//         await order.update({ status: req.body.status });
+//         res.status(200).send({ message: "Status pesanan berhasil diperbarui!", data: order });
+//     } catch (error) {
+//         res.status(500).send({ message: "Gagal memperbarui status pesanan: " + error.message });
+//     }
+// };
 
 
 // --- MANAJEMEN PENGGUNA ---
