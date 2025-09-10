@@ -9,11 +9,7 @@ const { verifyToken } = require("./middlewares/authenticate.js");
 const { getUserWithRole, isAdmin } = require("./middlewares/authorize.js");
 const app = express();
 
-app.use(cors({
-  origin: "*",
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
-  allowedHeaders: "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-}));
+app.use(cors());
 app.use(express.json());
 
 dotenv.config();
@@ -44,3 +40,7 @@ app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/tracking', trackingRoutes);
 
 module.exports = app;
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
