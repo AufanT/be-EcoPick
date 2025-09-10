@@ -6,7 +6,10 @@ const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
 const { verifyToken } = require("./middlewares/authenticate.js");
 const { getUserWithRole, isAdmin } = require("./middlewares/authorize.js");
+const connectDB = require("./db");
 const app = express();
+
+connectDB();
 
 app.use(cors());
 app.use(express.json());
