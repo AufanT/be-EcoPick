@@ -8,9 +8,9 @@ info:
   #   email: support@ecopick.com
 
 servers:
-  - url: https://be-eco-pick.vercel.app
+  - url: https://be-eco-pick.vercel.app/api
     description: Production server
-  - url: http://localhost:3000
+  - url: http://localhost:3000/api
     description: Development server
 
 # Security schemes
