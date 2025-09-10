@@ -1,4 +1,4 @@
-require('dotenv').config(); // load .env
+require('dotenv').config();
 
 module.exports = {
   development: {
@@ -6,20 +6,19 @@ module.exports = {
     password: process.env.DB_PASS,
     database: process.env.DB_NAME,
     host: process.env.DB_HOST,
-    dialect: process.env.DB_DIALECT
+    port: process.env.DB_PORT,
+    dialect: "postgres",   // 🔥 WAJIB ADA
   },
   test: {
     username: process.env.DB_USER,
     password: process.env.DB_PASS,
-    database: process.env.DB_NAME + "_test",
+    database: process.env.DB_NAME_TEST,
     host: process.env.DB_HOST,
-    dialect: process.env.DB_DIALECT
+    port: process.env.DB_PORT,
+    dialect: "postgres",
   },
   production: {
-    username: process.env.DB_USER,
-    password: process.env.DB_PASS,
-    database: process.env.DB_NAME + "_prod",
-    host: process.env.DB_HOST,
-    dialect: process.env.DB_DIALECT
-  }
+    use_env_variable: "DATABASE_URL",
+    dialect: "postgres",  // 🔥 WAJIB ADA
+  },
 };
