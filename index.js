@@ -1,3 +1,5 @@
+// aufant/be-ecopick/be-EcoPick-1bb7b1b.../index.js
+
 const express = require('express');
 const path = require('path');
 const PORT = process.env.PORT || 3000;
@@ -9,16 +11,15 @@ const { verifyToken } = require("./middlewares/authenticate.js");
 const { getUserWithRole, isAdmin } = require("./middlewares/authorize.js");
 const app = express();
 
+// --- FIX #1: KONFIGURASI CORS ---
+// Ini akan memperbaiki error "blocked by CORS policy".
+// Pastikan baris ini berada di bagian atas sebelum definisi rute lainnya.
 app.use(cors());
 
 app.use(express.json());
 dotenv.config();
 
-app.get('/', (req, res) => { 
-    res.send('Welcome to the EcoPick API!' );
-});
-
-// Import routes
+// ... (kode import rute lainnya)
 const swaggerDocument = YAML.load(path.join(__dirname, 'dokumentasi-api.yaml'));
 const authRoutes = require('./routes/Auth.routes');
 const userRoutes = require('./routes/User.routes');
@@ -29,7 +30,8 @@ const orderRoutes = require('./routes/Order.routes.js');
 const wishlistRoutes = require('./routes/Wishlist.routes.js');
 const trackingRoutes = require('./routes/Tracking.routes.js');
 
-// Setup Swagger UI dengan konfigurasi khusus untuk Vercel
+// --- FIX #2: KONFIGURASI SWAGGER UI DENGAN CDN ---
+// Ini akan memperbaiki error "Unexpected token '<'".
 const swaggerOptions = {
     customCssUrl: 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui.min.css',
     customJs: [
@@ -40,12 +42,14 @@ const swaggerOptions = {
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, swaggerOptions));
 
-
 // Setup routes
+app.get('/', (req, res) => { 
+    res.send('Welcome to the EcoPick API!' );
+});
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/admin', [verifyToken, getUserWithRole, isAdmin], adminRoutes);
-app.use('/api', productRoutes); // productRoutes sudah mengandung prefix /api/products
+app.use('/api', productRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/wishlist', wishlistRoutes);
