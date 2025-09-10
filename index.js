@@ -34,7 +34,17 @@ const swaggerOptions = {
     customJs: [
         'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-bundle.js',
         'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-standalone-preset.js'
-    ]
+    ],
+    explorer: true,
+    swaggerOptions: {
+        requestInterceptor: (req) => {
+            // Pastikan URL menggunakan HTTPS di production
+            if (process.env.NODE_ENV === 'production' && req.url.startsWith('http://')) {
+                req.url = req.url.replace('http://', 'https://');
+            }
+            return req;
+        }
+    }
 };
 
 app.use('/api-docs', swaggerUi.serve);
