@@ -1,5 +1,3 @@
-// aufant/be-ecopick/be-EcoPick-1bb7b1b.../index.js
-
 const express = require('express');
 const path = require('path');
 const PORT = process.env.PORT || 3000;
@@ -55,7 +53,4 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/tracking', trackingRoutes);
 
-app.listen(PORT, () => {
-    console.log(`🚀 Server is running on port ${PORT}`);
-    console.log(`📚 API Documentation: http://localhost:${PORT}/api-docs`);
-});
+module.exports = app;
