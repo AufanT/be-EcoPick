@@ -19,7 +19,7 @@ app.use(express.json());
 dotenv.config();
 
 // ... (kode import rute lainnya)
-const swaggerDocument = require('./dokumentasi-api.json');
+const swaggerDocument = YAML.load(path.join(__dirname, 'dokumentasi-api.yaml'));
 const authRoutes = require('./routes/Auth.routes');
 const userRoutes = require('./routes/User.routes');
 const adminRoutes = require('./routes/Admin.routes');
@@ -29,24 +29,11 @@ const orderRoutes = require('./routes/Order.routes.js');
 const wishlistRoutes = require('./routes/Wishlist.routes.js');
 const trackingRoutes = require('./routes/Tracking.routes.js');
 
-// --- FIX #2: KONFIGURASI SWAGGER UI DENGAN CDN ---
-// Ini akan memperbaiki error "Unexpected token '<'".
-// const swaggerOptions = {
-//     customCssUrl: 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui.min.css',
-//     customJs: [
-//         'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-bundle.js',
-//         'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-standalone-preset.js'
-//     ],
-// };
-
-// app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, swaggerOptions));
-// app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Setup routes
-app.get('/', (req, res) => { 
-    res.send('Welcome to the EcoPick API!' );
-});
+app.get('/', (req, res) => { res.send('Welcome to the EcoPick API!' );});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/admin', [verifyToken, getUserWithRole, isAdmin], adminRoutes);
