@@ -17,6 +17,20 @@ app.get('/', (req, res) => {
     res.send('Welcome to the EcoPick API!' );
 });
 
+// Simple API test endpoint
+app.get('/api/test', (req, res) => {
+    res.json({
+        success: true,
+        message: 'EcoPick API is working!',
+        timestamp: new Date().toISOString(),
+        endpoints: {
+            auth: '/api/auth/login',
+            products: '/api/products',
+            documentation: '/api-docs'
+        }
+    });
+});
+
 // Import routes
 const swaggerDocument = YAML.load(path.join(__dirname, 'dokumentasi-api.yaml'));
 const authRoutes = require('./routes/Auth.routes');
