@@ -11,14 +11,5 @@
       "src": "/(.*)",
       "dest": "index.js"
     }
-  ],
-  "functions": {
-    "api/**/*.js": {
-      "includeFiles": "node_modules/pg/**"
-    }
-  },
-    "env": {
-    "NODE_ENV": "production"
-  }
-  
+  ]
 }
