@@ -9,9 +9,6 @@ const { verifyToken } = require("./middlewares/authenticate.js");
 const { getUserWithRole, isAdmin } = require("./middlewares/authorize.js");
 const app = express();
 
-// --- FIX #1: KONFIGURASI CORS ---
-// Ini akan memperbaiki error "blocked by CORS policy".
-// Pastikan baris ini berada di bagian atas sebelum definisi rute lainnya.
 app.use(cors());
 
 app.use(express.json());
@@ -30,15 +27,16 @@ const trackingRoutes = require('./routes/Tracking.routes.js');
 
 // --- FIX #2: KONFIGURASI SWAGGER UI DENGAN CDN ---
 // Ini akan memperbaiki error "Unexpected token '<'".
-const swaggerOptions = {
-    customCssUrl: 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui.min.css',
-    customJs: [
-        'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-bundle.js',
-        'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-standalone-preset.js'
-    ],
-};
+// const swaggerOptions = {
+//     customCssUrl: 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui.min.css',
+//     customJs: [
+//         'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-bundle.js',
+//         'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-standalone-preset.js'
+//     ],
+// };
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, swaggerOptions));
+// app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, swaggerOptions));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Setup routes
 app.get('/', (req, res) => { 
