@@ -1,30 +1,28 @@
 const express = require('express');
+const path = require('path'); // Tambahkan baris ini
 const PORT = process.env.PORT || 3000;
 const cors = require('cors');
 const dotenv = require('dotenv');
-const swaggerUi = require('swagger-ui-express'); 
+const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
 const { verifyToken } = require("./middlewares/authenticate.js");
 const { getUserWithRole, isAdmin } = require("./middlewares/authorize.js");
-// const connectDB = require("./db");
 const app = express();
-
-// connectDB();
 
 app.use(cors());
 app.use(express.json());
 dotenv.config();
 
-
 app.get('/', (req, res) => { res.send('Welcome to API EcoPick'); });
 
-const swaggerDocument = YAML.load('./dokumentasi-api.yaml');
+// Perbaikan: Gunakan path.join untuk menemukan file YAML
+const swaggerDocument = YAML.load(path.join(process.cwd(), 'dokumentasi-api.yaml'));
 const authRoutes = require('./routes/Auth.routes');
 const userRoutes = require('./routes/User.routes');
 const adminRoutes = require('./routes/Admin.routes');
 const productRoutes = require('./routes/Product.routes.js');
 const cartRoutes = require('./routes/Cart.routes.js');
-const orderRoutes = require('./routes/Order.routes.js'); 
+const orderRoutes = require('./routes/Order.routes.js');
 const wishlistRoutes = require('./routes/Wishlist.routes.js');
 const trackingRoutes = require('./routes/Tracking.routes.js');
 
