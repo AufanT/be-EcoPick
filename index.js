@@ -5,7 +5,6 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
-const path = require('path');
 const { verifyToken } = require("./middlewares/authenticate.js");
 const { getUserWithRole, isAdmin } = require("./middlewares/authorize.js");
 const app = express();
@@ -35,17 +34,7 @@ const swaggerOptions = {
     customJs: [
         'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-bundle.js',
         'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-standalone-preset.js'
-    ],
-    explorer: true,
-    swaggerOptions: {
-        requestInterceptor: (req) => {
-            // Pastikan URL menggunakan HTTPS di production
-            if (process.env.NODE_ENV === 'production' && req.url.startsWith('http://')) {
-                req.url = req.url.replace('http://', 'https://');
-            }
-            return req;
-        }
-    }
+    ]
 };
 
 app.use('/api-docs', swaggerUi.serve);
