@@ -1,5 +1,5 @@
 const express = require('express');
-const path = require('path'); // Tambahkan baris ini
+const path = require('path');
 const PORT = process.env.PORT || 3000;
 const cors = require('cors');
 const dotenv = require('dotenv');
@@ -29,6 +29,7 @@ app.get('/', (req, res) => {
     }); 
 });
 
+// Perbaikan untuk Swagger - buat fallback jika file tidak ditemukan
 let swaggerDocument;
 try {
     // Coba load file YAML
@@ -71,7 +72,7 @@ try {
     };
 }
 
-// Perbaikan: Gunakan path.join untuk menemukan file YAML
+// Import routes
 const authRoutes = require('./routes/Auth.routes');
 const userRoutes = require('./routes/User.routes');
 const adminRoutes = require('./routes/Admin.routes');
@@ -81,12 +82,14 @@ const orderRoutes = require('./routes/Order.routes.js');
 const wishlistRoutes = require('./routes/Wishlist.routes.js');
 const trackingRoutes = require('./routes/Tracking.routes.js');
 
+// Setup Swagger UI
 app.use('/api-docs', swaggerUi.serve);
 app.get('/api-docs', swaggerUi.setup(swaggerDocument, {
     customCss: '.swagger-ui .topbar { display: none }',
     customSiteTitle: "EcoPick API Documentation"
 }));
 
+// Setup routes
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/admin', [verifyToken, getUserWithRole, isAdmin], adminRoutes);
@@ -96,6 +99,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/tracking', trackingRoutes);
 
+// Error handling middleware
 app.use((err, req, res, next) => {
     console.error('Error:', err);
     res.status(500).json({
@@ -105,10 +109,12 @@ app.use((err, req, res, next) => {
     });
 });
 
-app.use('*', (req, res) => {
+// Handle 404 - ganti '*' dengan middleware tanpa path
+app.use((req, res) => {
     res.status(404).json({
         success: false,
         message: 'Endpoint not found',
+        requestedPath: req.originalUrl,
         availableEndpoints: [
             '/api-docs',
             '/api/auth/login',
@@ -123,5 +129,6 @@ app.use('*', (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`🚀 Server is running on port ${PORT}`);
+    console.log(`📚 API Documentation: http://localhost:${PORT}/api-docs`);
 });
