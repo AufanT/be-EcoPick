@@ -16,7 +16,7 @@ dotenv.config();
 app.get('/', (req, res) => { res.send('Welcome to API EcoPick'); });
 
 // Perbaikan: Gunakan path.join untuk menemukan file YAML
-const swaggerDocument = YAML.load(path.join(process.cwd(), 'dokumentasi-api.yaml'));
+const swaggerDocument = YAML.load('./dokumentasi-api.yaml');
 const authRoutes = require('./routes/Auth.routes');
 const userRoutes = require('./routes/User.routes');
 const adminRoutes = require('./routes/Admin.routes');
@@ -26,8 +26,7 @@ const orderRoutes = require('./routes/Order.routes.js');
 const wishlistRoutes = require('./routes/Wishlist.routes.js');
 const trackingRoutes = require('./routes/Tracking.routes.js');
 
-app.use('/api-docs', swaggerUi.serve);
-app.get('/api-docs', swaggerUi.setup(swaggerDocument));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
