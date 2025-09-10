@@ -14,7 +14,7 @@
   ],
   "functions": {
     "api/**/*.js": {
-        "runtime": "@vercel/node"
+      "includeFiles": "node_modules/pg/**"
     }
   },
     "env": {
