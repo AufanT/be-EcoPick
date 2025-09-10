@@ -10,7 +10,7 @@ info:
 servers:
   - url: http://localhost:3000/api
     description: Development server
-  - url: be-eco-pick.vercel.app
+  - url: be-eco-pick.vercel.app/api
     description: Production server
 
 # Security schemes
