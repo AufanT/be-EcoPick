@@ -42,6 +42,12 @@ const trackingRoutes = require('./routes/Tracking.routes.js');
 
 // app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, swaggerOptions));
 // app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use(
+  '/api-docs',
+  express.static(path.join(require.resolve('swagger-ui-dist'), '..'))
+);
+
+
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, {
   explorer: true, // aktifkan explorer supaya UI pasti render
 }));
