@@ -10,6 +10,7 @@ const { getUserWithRole, isAdmin } = require("./middlewares/authorize.js");
 const app = express();
 
 app.use(cors());
+
 app.use(express.json());
 dotenv.config();
 
@@ -30,15 +31,15 @@ const trackingRoutes = require('./routes/Tracking.routes.js');
 
 // Setup Swagger UI dengan konfigurasi khusus untuk Vercel
 const swaggerOptions = {
-    customCssUrl: 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css',
+    customCssUrl: 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui.min.css',
     customJs: [
-        'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-bundle.js',
-        'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-standalone-preset.js'
-    ]
+        'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-bundle.js',
+        'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-standalone-preset.js'
+    ],
 };
 
-app.use('/api-docs', swaggerUi.serve);
-app.get('/api-docs', swaggerUi.setup(swaggerDocument, swaggerOptions));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, swaggerOptions));
+
 
 // Setup routes
 app.use('/api/auth', authRoutes);
