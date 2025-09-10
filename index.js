@@ -9,7 +9,17 @@ const { verifyToken } = require("./middlewares/authenticate.js");
 const { getUserWithRole, isAdmin } = require("./middlewares/authorize.js");
 const app = express();
 
-app.use(cors());
+// CORS configuration yang lebih permissive untuk Swagger
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    credentials: true
+}));
+
+// Handle preflight requests
+app.options('*', cors());
+
 app.use(express.json());
 dotenv.config();
 
@@ -31,8 +41,23 @@ app.get('/api/test', (req, res) => {
     });
 });
 
-// Import routes
+// Load swagger document
 const swaggerDocument = YAML.load(path.join(__dirname, 'dokumentasi-api.yaml'));
+
+// Dynamic server URL update
+const baseUrl = process.env.NODE_ENV === 'production' 
+    ? 'https://be-eco-pick.vercel.app' 
+    : 'http://localhost:3000';
+
+// Update servers di swagger document
+swaggerDocument.servers = [
+    {
+        url: `${baseUrl}/api`,
+        description: process.env.NODE_ENV === 'production' ? 'Production server' : 'Development server'
+    }
+];
+
+// Import routes
 const authRoutes = require('./routes/Auth.routes');
 const userRoutes = require('./routes/User.routes');
 const adminRoutes = require('./routes/Admin.routes');
@@ -42,29 +67,7 @@ const orderRoutes = require('./routes/Order.routes.js');
 const wishlistRoutes = require('./routes/Wishlist.routes.js');
 const trackingRoutes = require('./routes/Tracking.routes.js');
 
-// Setup Swagger UI dengan konfigurasi khusus untuk Vercel
-const swaggerOptions = {
-    customCssUrl: 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css',
-    customJs: [
-        'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-bundle.js',
-        'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-standalone-preset.js'
-    ],
-    explorer: true,
-    swaggerOptions: {
-        requestInterceptor: (req) => {
-            // Pastikan URL menggunakan HTTPS di production
-            if (process.env.NODE_ENV === 'production' && req.url.startsWith('http://')) {
-                req.url = req.url.replace('http://', 'https://');
-            }
-            return req;
-        }
-    }
-};
-
-app.use('/api-docs', swaggerUi.serve);
-app.get('/api-docs', swaggerUi.setup(swaggerDocument, swaggerOptions));
-
-// Setup routes
+// Setup API routes SEBELUM swagger
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/admin', [verifyToken, getUserWithRole, isAdmin], adminRoutes);
@@ -73,6 +76,27 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/tracking', trackingRoutes);
+
+// Setup Swagger UI dengan konfigurasi yang fix CORS issue
+const swaggerOptions = {
+    swaggerOptions: {
+        requestInterceptor: (request) => {
+            // Pastikan request menggunakan URL yang benar
+            console.log('Swagger request:', request.url);
+            return request;
+        },
+        responseInterceptor: (response) => {
+            // Log response untuk debugging
+            console.log('Swagger response:', response.status, response.url);
+            return response;
+        },
+        persistAuthorization: true,
+        tryItOutEnabled: true
+    }
+};
+
+app.use('/api-docs', swaggerUi.serve);
+app.get('/api-docs', swaggerUi.setup(swaggerDocument, swaggerOptions));
 
 app.listen(PORT, () => {
     console.log(`🚀 Server is running on port ${PORT}`);
