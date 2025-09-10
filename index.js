@@ -19,7 +19,7 @@ app.use(express.json());
 dotenv.config();
 
 // ... (kode import rute lainnya)
-const swaggerDocument = YAML.load(path.join(__dirname, 'dokumentasi-api.yaml'));
+const swaggerDocument = YAML.load(path.join(process.cwd(), 'public', 'dokumentasi-api.yaml'));
 const authRoutes = require('./routes/Auth.routes');
 const userRoutes = require('./routes/User.routes');
 const adminRoutes = require('./routes/Admin.routes');
@@ -41,15 +41,18 @@ const trackingRoutes = require('./routes/Tracking.routes.js');
 
 // app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, swaggerOptions));
 // app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+
 app.use(
   '/api-docs',
-  express.static(path.join(require.resolve('dokumentasi-api.yaml'), '..'))
+  swaggerUi.serve,
+  swaggerUi.setup(null, {
+    swaggerOptions: {
+      url: '/dokumentasi-api.yaml'
+    }
+  })
 );
 
-
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, {
-  explorer: true, // aktifkan explorer supaya UI pasti render
-}));
 
 // Setup routes
 app.get('/', (req, res) => { 
