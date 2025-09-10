@@ -13,10 +13,65 @@ app.use(cors());
 app.use(express.json());
 dotenv.config();
 
-app.get('/', (req, res) => { res.send('Welcome to API EcoPick'); });
+app.get('/', (req, res) => { 
+    res.json({ 
+        message: 'Welcome to API EcoPick',
+        status: 'API is running',
+        endpoints: {
+            docs: '/api-docs',
+            auth: '/api/auth',
+            products: '/api/products',
+            cart: '/api/cart',
+            orders: '/api/orders',
+            wishlist: '/api/wishlist',
+            tracking: '/api/tracking'
+        }
+    }); 
+});
+
+let swaggerDocument;
+try {
+    // Coba load file YAML
+    const yamlPath = path.join(process.cwd(), 'dokumentasi-api.yaml');
+    swaggerDocument = YAML.load(yamlPath);
+    console.log('✅ Swagger document loaded successfully');
+} catch (error) {
+    console.log('⚠️  Warning: Could not load YAML file, using fallback swagger config');
+    // Fallback swagger document jika file tidak ditemukan
+    swaggerDocument = {
+        openapi: '3.0.0',
+        info: {
+            title: 'EcoPick API',
+            description: 'API dokumentasi untuk aplikasi EcoPick - Platform E-commerce Produk Ramah Lingkungan',
+            version: '1.0.0'
+        },
+        servers: [
+            {
+                url: 'https://be-eco-pick.vercel.app/api',
+                description: 'Production server'
+            },
+            {
+                url: 'http://localhost:3000/api',
+                description: 'Development server'
+            }
+        ],
+        paths: {
+            '/': {
+                get: {
+                    summary: 'API Status',
+                    description: 'Check if API is running',
+                    responses: {
+                        '200': {
+                            description: 'API is running successfully'
+                        }
+                    }
+                }
+            }
+        }
+    };
+}
 
 // Perbaikan: Gunakan path.join untuk menemukan file YAML
-const swaggerDocument = YAML.load(path.join(process.cwd(), 'dokumentasi-api.yaml'));
 const authRoutes = require('./routes/Auth.routes');
 const userRoutes = require('./routes/User.routes');
 const adminRoutes = require('./routes/Admin.routes');
@@ -27,7 +82,10 @@ const wishlistRoutes = require('./routes/Wishlist.routes.js');
 const trackingRoutes = require('./routes/Tracking.routes.js');
 
 app.use('/api-docs', swaggerUi.serve);
-app.get('/api-docs', swaggerUi.setup(swaggerDocument));
+app.get('/api-docs', swaggerUi.setup(swaggerDocument, {
+    customCss: '.swagger-ui .topbar { display: none }',
+    customSiteTitle: "EcoPick API Documentation"
+}));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
@@ -37,6 +95,32 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/tracking', trackingRoutes);
+
+app.use((err, req, res, next) => {
+    console.error('Error:', err);
+    res.status(500).json({
+        success: false,
+        message: 'Internal Server Error',
+        error: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
+    });
+});
+
+app.use('*', (req, res) => {
+    res.status(404).json({
+        success: false,
+        message: 'Endpoint not found',
+        availableEndpoints: [
+            '/api-docs',
+            '/api/auth/login',
+            '/api/auth/register',
+            '/api/products',
+            '/api/cart',
+            '/api/orders',
+            '/api/wishlist',
+            '/api/tracking'
+        ]
+    });
+});
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
