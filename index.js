@@ -14,9 +14,8 @@ app.use(cors({
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
   allowedHeaders: "Origin, X-Requested-With, Content-Type, Accept, Authorization"
 }));
-
-
 app.use(express.json());
+
 dotenv.config();
 
 // ... (kode import rute lainnya)
@@ -44,7 +43,7 @@ const trackingRoutes = require('./routes/Tracking.routes.js');
 // app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use(
   '/api-docs',
-  express.static(path.join(require.resolve('swagger-ui-dist'), '..'))
+  express.static(path.join(require.resolve('dokumentasi-api.yaml'), '..'))
 );
 
 
