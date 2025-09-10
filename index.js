@@ -38,7 +38,8 @@ const swaggerOptions = {
     ],
 };
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, swaggerOptions));
+app.use('/api-docs', swaggerUi.serve);
+app.get('/api-docs', swaggerUi.setup(swaggerDocument, swaggerOptions));
 
 // Setup routes
 app.use('/api/auth', authRoutes);
