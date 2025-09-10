@@ -14,7 +14,7 @@ app.use(express.json());
 dotenv.config();
 
 app.get('/', (req, res) => { 
-    res.send({ message: 'Welcome to the EcoPick API!' });
+    res.send('Welcome to the EcoPick API!' );
 });
 
 // Import routes
