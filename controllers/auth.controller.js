@@ -76,7 +76,14 @@ exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        const user = await User.findOne({ where: { email } });
+        const user = await User.findOne({ 
+            where: { email },
+            include: {
+                model: Role,
+                as: 'role',
+                attributes: ['name']
+            }
+        });
 
         if (!user) {
             return res.status(404).send({ 
@@ -108,7 +115,8 @@ exports.login = async (req, res) => {
                 user: {
                     id: user.id,
                     full_name: user.full_name,
-                    email: user.email
+                    email: user.email,
+                    role: user.role ? user.role.name : null
                 },
                 accessToken: token
             }
