@@ -1,5 +1,6 @@
 const { Product, Category, Order, OrderItem, User, Role } = require('../models');
 const { Op } = require('sequelize');
+const mlService = require('../services/mlService');
 
 // --- MANAJEMEN PRODUK ---
 
@@ -30,7 +31,15 @@ exports.getAllProducts = async (req, res) => {
 // POST /api/admin/products - Membuat produk baru
 exports.createProduct = async (req, res) => {
     try {
-        const product = await Product.create(req.body);
+        const isEcoFriendlyMl = await mlService.predictEcoFriendly(req.body);
+
+        const productData = {
+            ...req.body, // Ambil semua data dari input admin
+            is_eco_friendly_ml: isEcoFriendlyMl // Tambahkan hasil prediksi ML
+        };
+
+        const product = await Product.create(productData);
+        
         res.status(201).send({ message: "Produk berhasil dibuat!", data: product });
     } catch (error) {
         res.status(500).send({ message: "Gagal membuat produk: " + error.message });

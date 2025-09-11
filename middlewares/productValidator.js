@@ -1,5 +1,15 @@
 const { body, validationResult } = require('express-validator');
 
+
+const VALID_ML_CATEGORIES = [
+    'Beauty', 
+    'Food & Beverage', 
+    'Office Supplies', 
+    'Electronics', 
+    'Fashion', 
+    'Household'
+];
+
 const createProductRules = () => {
     return [
         body('name').notEmpty().withMessage('Nama produk wajib diisi.'),
@@ -17,7 +27,10 @@ const createProductRules = () => {
         body('recycled_content').optional().isInt({ min: 0, max: 100 }).withMessage('Persentase daur ulang harus antara 0 dan 100.'),
         body('packaging_type').notEmpty().withMessage('Jenis kemasan wajib diisi.'),
         body('is_reusable').isBoolean().withMessage('Nilai reusable harus true atau false.'),
-        body('has_eco_certification').isBoolean().withMessage('Nilai sertifikasi harus true atau false.')
+        body('has_eco_certification').isBoolean().withMessage('Nilai sertifikasi harus true atau false.'),
+        body('ml_category')
+            .notEmpty().withMessage('Kategori untuk ML wajib diisi.')
+            .isIn(VALID_ML_CATEGORIES).withMessage('Kategori ML tidak valid.')
     ];    
 };
 
