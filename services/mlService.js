@@ -1,7 +1,7 @@
 const axios = require('axios');
 
-const PRODUCT_ML_API_URL = 'https://nama-domain-api-ml-anda.com/predict';
-const REVIEW_ML_API_URL = 'https://nama-domain-api-ml-anda.com/predict-sentiment'; 
+const PRODUCT_ML_API_URL = 'https://7ec2df6d5102.ngrok-free.app/predict';
+const REVIEW_ML_API_URL = 'https://173946cab3df.ngrok-free.app/predict';
 
 
 /**
@@ -11,8 +11,8 @@ const REVIEW_ML_API_URL = 'https://nama-domain-api-ml-anda.com/predict-sentiment
  */
 exports.predictEcoFriendly = async (productData) => {
   const payload = { 
-    kategori_produk:       productData.ml_category,
-    product_name:          productData.name, 
+    // kategori_produk:       productData.ml_category,
+    // product_name:          productData.name, 
     material:              productData.main_material,
     biodegradable:         productData.is_biodegradable,
     recycled_content:      productData.recycled_content,
@@ -49,20 +49,18 @@ exports.predictEcoFriendly = async (productData) => {
  * @returns {Promise<string>} - Mengembalikan sentimen ('positive', 'negative', 'neutral').
  */
 exports.predictReviewSentiment = async (reviewData) => {
-  const payload = {
-    id: reviewData.product_id,
-    product_name: reviewData.product_name,
-    rating: reviewData.rating,
-    review: reviewData.comment 
-  };
+    const payload = {
+        text: reviewData.comment 
+    };
 
   console.log("Mengirim payload ke API Sentiment ML:", payload);
 
   try {
     const response = await axios.post(REVIEW_ML_API_URL, payload);
 
+     console.log("JAWABAN LENGKAP DARI ML:", JSON.stringify(response.data, null, 2));
     // Sesuaikan 'response.data.sentiment' dengan respons aktual dari API
-    const sentimentResult = response.data.sentiment; 
+    const sentimentResult = response.data.sentimen ? response.data.sentimen.toLowerCase() : null; 
     
     console.log("Hasil prediksi sentimen dari ML:", sentimentResult);
 

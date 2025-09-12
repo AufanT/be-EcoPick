@@ -23,7 +23,7 @@ module.exports = (sequelize, DataTypes) => {
     comment: DataTypes.TEXT,
     sentiment: {
       type: DataTypes.ENUM('positive', 'negative', 'neutral'),
-      allowNull: true // Biarkan null pada awalnya
+      allowNull: true 
     }
   }, {
     sequelize,
