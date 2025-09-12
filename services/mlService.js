@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-const PRODUCT_ML_API_URL = 'https://7ec2df6d5102.ngrok-free.app/predict';
+const PRODUCT_ML_API_URL = 'https://873300f612a9.ngrok-free.app/predict';
 const REVIEW_ML_API_URL = 'https://173946cab3df.ngrok-free.app/predict';
 
 
