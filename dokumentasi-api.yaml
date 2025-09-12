@@ -1725,15 +1725,88 @@ paths:
       tags:
         - Admin - Products
       summary: Membuat produk baru (Admin)
-      description: Menambahkan produk baru ke sistem
+      description: Menambahkan produk baru ke sistem, termasuk meng-upload gambar produk.
       security:
         - BearerAuth: []
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
-              $ref: '#/components/schemas/CreateProductRequest'
+              type: object
+              required:
+                - image
+                - name
+                - category_id
+                - description
+                - price
+                - stock_quantity
+                - materials
+                - origin
+                - is_eco_friendly_admin
+                - main_material
+                - is_biodegradable
+                - packaging_type
+                - is_reusable
+                - has_eco_certification
+              properties:
+                image: 
+                  type: string
+                  format: binary
+                  description: File gambar produk (jpeg, jpg, png, gif).
+                name:
+                  type: string
+                  example: "Tas Ramah Lingkungan"
+                category_id:
+                  type: integer
+                  example: 1
+                description:
+                  type: string
+                  example: "Tas yang terbuat dari bahan daur ulang"
+                price:
+                  type: number
+                  format: decimal
+                  example: 150000.00
+                stock_quantity:
+                  type: integer
+                  minimum: 0
+                  example: 50
+                materials:
+                  type: array
+                  items:
+                    type: string
+                  minItems: 1
+                  example: ["Cotton", "Recycled Plastic"]
+                origin:
+                  type: string
+                  example: "Indonesia"
+                is_eco_friendly_admin:
+                  type: boolean
+                  example: true
+                main_material:
+                  type: string
+                  example: "Cotton"
+                is_biodegradable:
+                  type: boolean
+                  example: true
+                recycled_content:
+                  type: integer
+                  minimum: 0
+                  maximum: 100
+                  example: 80
+                packaging_type:
+                  type: string
+                  example: "Biodegradable"
+                is_reusable:
+                  type: boolean
+                  example: true
+                has_eco_certification:
+                  type: boolean
+                  example: true
+                ml_category:
+                  type: string
+                  description: "Kategori produk untuk model ML. Harus salah satu dari: 'Beauty', 'Food & Beverage', 'Office Supplies', 'Electronics', 'Fashion', 'Household'."
+                  example: "Fashion"
       responses:
         '201':
           description: Produk berhasil dibuat
@@ -1799,7 +1872,7 @@ paths:
       tags:
         - Admin - Products
       summary: Update produk (Admin)
-      description: Memperbarui data produk
+      description: Memperbarui data produk, termasuk kemungkinan mengganti gambar.
       security:
         - BearerAuth: []
       parameters:
@@ -1812,9 +1885,17 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data: 
             schema:
-              $ref: '#/components/schemas/CreateProductRequest'
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: File gambar produk baru (opsional).
+                name:
+                  type: string
+                  example: "Tas Ramah Lingkungan V2"
       responses:
         '200':
           description: Produk berhasil diperbarui

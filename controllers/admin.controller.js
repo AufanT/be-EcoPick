@@ -38,13 +38,12 @@ exports.createProduct = async (req, res) => {
 
         const imageUrl = `${req.protocol}://${req.get('host')}/public/images/${req.file.filename}`;
 
-        const materialsArray = JSON.parse(req.body.materials);
+        // const materialsArray = JSON.parse(req.body.materials);
         
         const isEcoFriendlyMl = await mlService.predictEcoFriendly(req.body);
 
         const productData = {
             ...req.body, // Ambil semua data dari input admin
-            materials: materialsArray, 
             is_eco_friendly_ml: isEcoFriendlyMl, // Tambahkan hasil prediksi ML
             image_url: imageUrl // Simpan URL gambar
         };
