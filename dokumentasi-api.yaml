@@ -187,7 +187,7 @@ components:
           example: "Biodegradable"
         is_reusable:
           type: boolean
-          example: true
+          example: tru
         has_eco_certification:
           type: boolean
           example: true
@@ -1126,7 +1126,9 @@ paths:
       tags:
         - Products
       summary: Membuat ulasan produk
-      description: Menambahkan ulasan untuk produk tertentu
+      description: |
+        Menambahkan ulasan untuk produk tertentu. 
+        Setelah ulasan dibuat, sistem akan secara otomatis mengirim data ulasan (ID produk, nama produk, rating, dan komentar) ke model Machine Learning untuk analisis sentimen (positif/negatif).
       security:
         - BearerAuth: []
       parameters:
@@ -1135,7 +1137,7 @@ paths:
           required: true
           schema:
             type: integer
-          description: ID produk
+          description: ID produk yang akan diulas
       requestBody:
         required: true
         content:
@@ -1144,7 +1146,7 @@ paths:
               $ref: '#/components/schemas/CreateReviewRequest'
       responses:
         '201':
-          description: Ulasan berhasil ditambahkan
+          description: Ulasan berhasil ditambahkan. Analisis sentimen akan diproses di latar belakang.
           content:
             application/json:
               schema:
@@ -1155,8 +1157,14 @@ paths:
                     example: "Ulasan berhasil ditambahkan!"
                   data:
                     $ref: '#/components/schemas/Review'
+        '404':
+          description: Produk tidak ditemukan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '422':
-          description: Validasi gagal
+          description: Validasi gagal (misalnya, rating tidak valid atau komentar kosong)
           content:
             application/json:
               schema:

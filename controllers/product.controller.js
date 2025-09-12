@@ -1,6 +1,7 @@
 const { Product, Category, Review, User, UserProductViewHistory, sequelize } = require('../models');
 const { Op } = require('sequelize');
 const jwt = require('jsonwebtoken');
+const mlService = require('../services/mlService'); 
 
 // --- API UNTUK ETALASE PRODUK (PUBLIK) ---
 
@@ -197,11 +198,34 @@ exports.createReview = async (req, res) => {
         const userId = req.userId; 
         const { rating, comment } = req.body;
 
+        // Ambil data produk untuk mendapatkan namanya
+        const product = await Product.findByPk(productId);
+        if (!product) {
+            return res.status(404).send({ message: "Produk tidak ditemukan." });
+        }
+
         const review = await Review.create({
             product_id: productId,
             user_id: userId,
             rating: rating,
             comment: comment
+        });
+
+        // Siapkan data lengkap untuk dikirim ke service ML
+        const reviewDataForML = {
+            product_id: product.id,
+            product_name: product.name,
+            rating: review.rating,
+            comment: review.comment
+        };
+
+        // Panggil service ML secara asinkron
+        mlService.predictReviewSentiment(reviewDataForML).then(sentiment => {
+            if (sentiment) {
+                review.update({ sentiment: sentiment });
+            }
+        }).catch(err => {
+            console.error("Gagal mengupdate sentimen ulasan:", err);
         });
 
         res.status(201).send({ message: "Ulasan berhasil ditambahkan!", data: review });
