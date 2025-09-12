@@ -354,6 +354,12 @@ components:
         createdAt:
           type: string
           format: date-time
+        sentiment:
+          type: string
+          enum: [positive, negative, neutral]
+          nullable: true
+          description: "Hasil analisis sentimen dari model ML (bisa jadi null jika belum diproses)."
+          example: "positive"
         User:
           type: object
           properties:

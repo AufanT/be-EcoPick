@@ -135,7 +135,7 @@ exports.getProductById = async (req, res) => {
             include: [{
                 model: Review,
                 as: 'Reviews', 
-                attributes: { exclude: ['updatedAt'] },
+                attributes: ['id', 'user_id', 'product_id', 'rating', 'comment', 'createdAt', 'sentiment'],
                 include: [{
                     model: User,
                     attributes: ['full_name']
