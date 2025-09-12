@@ -20,7 +20,11 @@ module.exports = (sequelize, DataTypes) => {
     user_id: DataTypes.INTEGER,
     product_id: DataTypes.INTEGER,
     rating: DataTypes.INTEGER,
-    comment: DataTypes.TEXT
+    comment: DataTypes.TEXT,
+    sentiment: {
+      type: DataTypes.ENUM('positive', 'negative', 'neutral'),
+      allowNull: true // Biarkan null pada awalnya
+    }
   }, {
     sequelize,
     modelName: 'Review'
