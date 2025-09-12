@@ -2,11 +2,13 @@ const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/admin.controller');
 const { createProductRules, validate } = require('../middlewares/productValidator');
+const upload = require('../middlewares/upload');
 
 // --- Routes untuk Produk ---
 router.get('/products', controller.getAllProducts);
-router.post('/products', createProductRules(), validate, controller.createProduct);
+router.post('/products', upload.single('image'), createProductRules(), validate, controller.createProduct);
 router.get('/products/:id', controller.getProductById);
+router.put('/products/:id', upload.single('image'), controller.updateProduct);
 router.put('/products/:id', controller.updateProduct);
 router.delete('/products/:id', controller.deleteProduct);
 

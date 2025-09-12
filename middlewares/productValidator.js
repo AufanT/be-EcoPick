@@ -17,8 +17,20 @@ const createProductRules = () => {
         body('description').notEmpty().withMessage('Deskripsi wajib diisi.'),
         body('price').isDecimal({ decimal_digits: '2' }).withMessage('Harga harus berupa angka desimal.'),
         body('stock_quantity').isInt({ min: 0 }).withMessage('Stok harus berupa angka.'),
-        body('image_url').isURL().withMessage('URL Gambar tidak valid.'),
-        body('materials').isArray({ min: 1 }).withMessage('Bahan produk harus diisi.'),
+        body('image_url').optional().isURL().withMessage('URL Gambar tidak valid.'),
+        body('materials')
+            .notEmpty().withMessage('Bahan produk harus diisi.')
+            .custom((value) => {
+                try {
+                    const parsed = JSON.parse(value);
+                        if (!Array.isArray(parsed) || parsed.length === 0) {
+                            throw new Error('Bahan produk harus berupa array dan tidak boleh kosong.');
+                        }
+                } catch (e) {
+                    throw new Error('Format bahan produk tidak valid. Gunakan format JSON Array, contoh: ["Bahan 1", "Bahan 2"]');
+                }
+                return true;
+    }),
         body('origin').notEmpty().withMessage('Asal produk wajib diisi.'),
         body('is_eco_friendly_ml').isBoolean().withMessage('Status ML harus boolean (true/false).'),
         body('is_eco_friendly_admin').isBoolean().withMessage('Status Admin harus boolean (true/false).'),

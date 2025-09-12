@@ -31,11 +31,22 @@ exports.getAllProducts = async (req, res) => {
 // POST /api/admin/products - Membuat produk baru
 exports.createProduct = async (req, res) => {
     try {
+
+        if (!req.file) {
+            return res.status(400).send({ message: "Gambar produk wajib di-upload." });
+        }
+
+        const imageUrl = `${req.protocol}://${req.get('host')}/public/images/${req.file.filename}`;
+
+        const materialsArray = JSON.parse(req.body.materials);
+        
         const isEcoFriendlyMl = await mlService.predictEcoFriendly(req.body);
 
         const productData = {
             ...req.body, // Ambil semua data dari input admin
-            is_eco_friendly_ml: isEcoFriendlyMl // Tambahkan hasil prediksi ML
+            materials: materialsArray, 
+            is_eco_friendly_ml: isEcoFriendlyMl, // Tambahkan hasil prediksi ML
+            image_url: imageUrl // Simpan URL gambar
         };
 
         const product = await Product.create(productData);
@@ -67,7 +78,17 @@ exports.updateProduct = async (req, res) => {
             return res.status(404).send({ message: "Produk tidak ditemukan." });
         }
 
-        await product.update(req.body);
+        let imageUrl = product.image_url;
+        if (req.file) {
+            imageUrl = `${req.protocol}://${req.get('host')}/public/images/${req.file.filename}`;
+        }
+
+        const updateData = {
+            ...req.body,
+            image_url: imageUrl
+        };
+        
+        await product.update(updateData);
         res.status(200).send({ message: "Produk berhasil diperbarui!", data: product });
     } catch (error) {
         res.status(500).send({ message: "Gagal memperbarui produk: " + error.message });
