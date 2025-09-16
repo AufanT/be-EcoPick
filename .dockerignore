@@ -1,0 +1,14 @@
+# Abaikan folder dependensi lokal
+node_modules
+
+# Abaikan file .env lokal (kita akan buatkan khusus untuk Docker)
+.env
+.env.docker 
+
+# Abaikan file-file Docker
+Dockerfile
+docker-compose.yml
+
+# Abaikan folder Git
+.git
+.gitignore

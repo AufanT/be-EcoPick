@@ -4,7 +4,6 @@ const jwt = require('jsonwebtoken');
 const mlService = require('../services/mlService'); 
 
 // --- API UNTUK ETALASE PRODUK (PUBLIK) ---
-
 // GET /api/products - Mengambil semua produk dengan filter, paginasi, DAN rekomendasi
 exports.getAllProducts = async (req, res) => {
     try {
@@ -46,7 +45,6 @@ exports.getAllProducts = async (req, res) => {
                 if (sortedCategories.length > 0) {
                     whereClause.category_id = { [Op.in]: sortedCategories.slice(0, 3) };
                     
-                    // FIXED: No more SQL injection - use safe Sequelize ordering
                     const orderCases = sortedCategories.slice(0, 3).map((catId, index) => 
                         `WHEN category_id = ${parseInt(catId)} THEN ${index + 1}`
                     ).join(' ');
@@ -63,7 +61,6 @@ exports.getAllProducts = async (req, res) => {
         if (!isHomepage) {
             const { search, category_id, min_price, max_price } = req.query;
 
-            // FIXED: Add more search options
             if (search) {
                 whereClause.name = { [Op.like]: `%${search}%` };
             }
@@ -104,7 +101,6 @@ exports.getAllProducts = async (req, res) => {
             responseType = 'search';
         }
 
-        // FIXED: Consistent response format
         res.status(200).send({
             success: true,
             data: {
@@ -150,10 +146,9 @@ exports.getProductById = async (req, res) => {
         if (authHeader && authHeader.startsWith('Bearer ')) {
             const token = authHeader.split(' ')[1];
             
-            // Menggunakan Promise agar proses pencatatan ditunggu (await)
             await new Promise((resolve, reject) => {
                 jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
-                    if (err) return resolve(); // Jika token error, abaikan & lanjutkan
+                    if (err) return resolve(); 
                     if (decoded) {
                         try {
                             const userId = decoded.id;
@@ -164,7 +159,7 @@ exports.getProductById = async (req, res) => {
                             });
                             resolve();
                         } catch (dbError) {
-                            reject(dbError); // Jika database error, hentikan proses
+                            reject(dbError); 
                         }
                     } else {
                         resolve();
@@ -187,7 +182,6 @@ exports.getAllCategories = async (req, res) => {
         res.status(500).send({ message: "Gagal mengambil kategori: " + error.message });
     }
 };
-
 
 // --- API UNTUK ULASAN (MEMERLUKAN LOGIN) ---
 

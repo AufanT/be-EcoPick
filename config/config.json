@@ -1,10 +1,10 @@
 {
   "development": {
-    "username": "root",
-    "password": null,
+    "username": "ecopick_user",
+    "password": "ecopick_password",
     "database": "ecopick_db",
-    "host": "127.0.0.1",
-    "dialect": "mysql"
+    "host": "db",
+    "dialect": "mysql"  
   },
   "test": {
     "username": "root",

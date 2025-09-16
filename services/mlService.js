@@ -1,8 +1,7 @@
 const axios = require('axios');
 
-const PRODUCT_ML_API_URL = 'https://873300f612a9.ngrok-free.app/predict';
-const REVIEW_ML_API_URL = 'https://173946cab3df.ngrok-free.app/predict';
-
+const PRODUCT_ML_API_URL = 'https://843c076c784c.ngrok-free.app/predict';
+const REVIEW_ML_API_URL = 'https://d0ba61e88b66.ngrok-free.app/predict';
 
 /**
  * Mengirim data produk ke API Machine Learning untuk mendapatkan prediksi.
